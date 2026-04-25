@@ -5,23 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brewha | POS System</title>
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], },
                     colors: {
                         coffee: {
                             50: '#fdf8f4', 100: '#f8efe6', 200: '#eedbc6',
@@ -34,7 +27,6 @@
             }
         }
     </script>
-    
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -54,12 +46,10 @@
         </div>
         <div class="flex items-center gap-6">
             <div class="text-sm font-medium text-coffee-200 hidden md:block" id="live-clock"></div>
-            
             <div class="hidden md:flex items-center gap-2 text-coffee-300 text-sm font-medium bg-coffee-900 px-3 py-1.5 rounded-lg border border-coffee-800">
                 <div id="connection-status" class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
                 <span id="connection-text">Connecting...</span>
             </div>
-
             <div class="flex items-center gap-4">
                 <div class="flex items-center gap-2 bg-coffee-900 px-3 py-1.5 rounded-lg border border-coffee-800">
                     <i class="ph ph-user text-coffee-400"></i>
@@ -75,13 +65,10 @@
     <div class="flex flex-1 overflow-hidden flex-col md:flex-row">
         <main class="flex-1 flex flex-col min-w-0 bg-gray-50 z-0">
             <div class="bg-white border-b border-gray-200 p-4 shadow-sm z-10 flex-shrink-0">
-                <div id="category-tabs" class="flex overflow-x-auto no-scrollbar gap-2 pb-1">
-                </div>
+                <div id="category-tabs" class="flex overflow-x-auto no-scrollbar gap-2 pb-1"></div>
             </div>
-
             <div class="flex-1 overflow-y-auto p-4 md:p-6" id="product-grid-container">
-                <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                </div>
+                <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"></div>
             </div>
         </main>
 
@@ -107,15 +94,10 @@
                     <span>Subtotal</span>
                     <span id="ticket-subtotal">₱0.00</span>
                 </div>
-                <div class="flex justify-between text-gray-500 mb-3 text-sm font-medium border-b border-gray-200 pb-3">
-                    <span>Discount</span>
-                    <span>₱0.00</span>
-                </div>
                 <div class="flex justify-between items-end mb-4">
                     <span class="text-gray-800 font-bold">Total</span>
                     <span id="ticket-total" class="text-3xl font-bold text-coffee-700">₱0.00</span>
                 </div>
-                
                 <button onclick="openPaymentModal()" id="pay-btn" class="w-full bg-coffee-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-coffee-800 active:bg-coffee-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex justify-center items-center gap-2" disabled>
                     <i class="ph ph-credit-card"></i> Pay Order
                 </button>
@@ -141,7 +123,7 @@
                 </h4>
                 <div id="addon-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
             </div>
-            <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
+            <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-between items-center flex-shrink-0">
                 <div class="flex items-center gap-3">
                     <span class="text-gray-500 font-medium text-sm">Item Total:</span>
                     <span id="addon-total-price" class="font-bold text-2xl text-coffee-700"></span>
@@ -211,14 +193,13 @@
         </div>
     </div>
 
-    <!-- Interactive Toast Notification -->
     <div id="toast-container" class="fixed bottom-6 left-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
     <!-- Firebase Connection for POS -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDsap0Yqqlr5ghuhXJuCbItWCQRNXKJMP8",
@@ -238,14 +219,8 @@
         let user = null;
         
         const initAuth = async () => {
-            try { 
-                await signInAnonymously(auth); 
-            } catch(e) { 
-                console.error("Firebase Auth Error", e); 
-                showToast("Error connecting to cloud database.", "warning");
-            }
+            try { await signInAnonymously(auth); } catch(e) { console.error(e); }
         };
-        
         initAuth();
         
         onAuthStateChanged(auth, (u) => { 
@@ -258,18 +233,18 @@
                     statusDot.className = "w-2 h-2 bg-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.8)]";
                     statusText.textContent = "Cloud Synced";
                 }
-
-                // Listen to Admin availability settings
-                const availRef = doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'settings', 'availability');
-                onSnapshot(availRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        window.unavailableIds = docSnap.data().ids || [];
-                    } else {
-                        window.unavailableIds = [];
-                    }
+                
+                const invRef = collection(db, 'artifacts', firestoreAppId, 'public', 'data', 'inventory');
+                onSnapshot(invRef, (snapshot) => {
+                    window.inventoryData = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                     if (window.renderProducts) window.renderProducts();
                 });
 
+                const availRef = doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'settings', 'availability');
+                onSnapshot(availRef, (docSnap) => {
+                    window.unavailableIds = docSnap.exists() ? docSnap.data().ids || [] : [];
+                    if (window.renderProducts) window.renderProducts();
+                });
             } else {
                 if (statusDot) {
                     statusDot.className = "w-2 h-2 bg-red-500 rounded-full";
@@ -279,52 +254,32 @@
         });
 
         window.submitPosOrderToFirebase = async function(orderTotal, ticketItems) {
-            if (!user) {
-                showToast("Cannot save: Not connected to database.", "warning");
-                return false;
-            }
-
+            if (!user) { showToast("Cannot save: Not connected to database.", "warning"); return false; }
             const orderNumber = 'POS-' + Math.floor(Math.random() * 90000 + 10000);
-            
             const formattedItems = ticketItems.map(item => {
                 let name = `${item.quantity}x ${item.name}`;
-                if (item.addons && item.addons.length > 0) {
-                    name += ` (+ ${item.addons.map(a => a.name).join(', ')})`;
-                }
+                if (item.addons && item.addons.length > 0) name += ` (+ ${item.addons.map(a => a.name).join(', ')})`;
                 return name;
             });
-
             const newOrder = {
-                source: 'POS',
-                customer: 'Walk-in',
-                items: formattedItems,
-                total: orderTotal,
-                status: 'Preparing',
-                time: 'Just now',
-                createdAt: Date.now()
+                source: 'POS', customer: 'Walk-in', items: formattedItems, total: orderTotal,
+                status: 'Preparing', time: 'Just now', createdAt: Date.now()
             };
 
             try {
                 await setDoc(doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'orders', orderNumber), newOrder);
                 return true;
-            } catch(e) { 
-                console.error("Error saving POS order:", e); 
-                showToast("Error saving order to cloud.", "warning");
-                return false;
-            }
+            } catch(e) { console.error(e); return false; }
         };
         
         window.showToast = function(msg, type = "success") {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            
             const colorClass = type === "success" ? "bg-gray-800" : "bg-red-500";
             const iconClass = type === "success" ? "ph-check-circle text-green-400" : "ph-warning-circle text-white";
-
             toast.className = `${colorClass} text-white px-4 py-3 rounded shadow-lg flex items-center gap-2 transform translate-y-full opacity-0 transition-all duration-300 text-sm font-medium z-[100]`;
             toast.innerHTML = `<i class="ph ${iconClass} text-lg"></i> ${msg}`;
             container.appendChild(toast);
-            
             requestAnimationFrame(() => toast.classList.remove('translate-y-full', 'opacity-0'));
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'translate-y-2');
@@ -334,7 +289,6 @@
     </script>
 
     <script>
-        // --- Data ---
         const rawMenu = [
             { id: 1, name: "Fried Egg", price: 15.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1525916801717-94ec18db35b1?auto=format&fit=crop&w=200&q=80" },
             { id: 2, name: "Siomai (4 pcs)", price: 25.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=200&q=80" },
@@ -380,62 +334,46 @@
         ];
 
         const products = rawMenu;
-        const categories = ["All", "Rice Meals", "A La Carte", "Hot Drinks", "Iced Coffee", "Iced Americano", "Non-Coffee", "Fruit Soda", "Soda Float"];
 
         const addOnsData = {
             coffee: [
-                { id: 'c1', name: 'Extra Espresso', price: 15 },
-                { id: 'c2', name: 'Fresh Milk', price: 10 },
-                { id: 'c3', name: 'Condensed Milk', price: 10 },
-                { id: 'c4', name: 'Honey', price: 10 },
-                { id: 'c5', name: 'Lemon Juice', price: 10 },
-                { id: 'c6', name: 'Whipped Cream', price: 10 },
-                { id: 'c7', name: 'Caramel Syrup', price: 10 },
-                { id: 'c8', name: 'Vanilla Syrup', price: 10 },
+                { id: 'c1', name: 'Extra Espresso / Strong Shot', price: 15 }, { id: 'c2', name: 'Fresh Milk', price: 10 },
+                { id: 'c3', name: 'Condensed Milk', price: 10 }, { id: 'c4', name: 'Honey', price: 10 },
+                { id: 'c5', name: 'Lemon Extract Juice', price: 10 }, { id: 'c6', name: 'Whipped Cream', price: 10 },
+                { id: 'c7', name: 'Caramel Syrup', price: 10 }, { id: 'c8', name: 'Vanilla Syrup', price: 10 },
                 { id: 'c9', name: 'Hazelnut Syrup', price: 10 }
             ],
             nonCoffee: [
-                { id: 'nc1', name: 'Chocolate Syrup', price: 10 },
-                { id: 'nc2', name: 'Strawberry Puree', price: 15 },
-                { id: 'nc3', name: 'Matcha Powder', price: 15 },
-                { id: 'nc4', name: 'Vanilla Ice Cream', price: 20 },
-                { id: 'nc5', name: 'Coffee Jelly', price: 10 },
-                { id: 'nc6', name: 'Pearl / Boba', price: 10 },
-                { id: 'nc7', name: 'Cream Cheese Foam', price: 15 },
-                { id: 'nc8', name: 'Extra Choco Drizzle', price: 10 }
+                { id: 'nc1', name: 'Chocolate Syrup', price: 10 }, { id: 'nc2', name: 'Strawberry Puree', price: 15 },
+                { id: 'nc3', name: 'Matcha Powder', price: 15 }, { id: 'nc4', name: 'Vanilla Ice Cream (Float)', price: 20 },
+                { id: 'nc5', name: 'Coffee Jelly', price: 10 }, { id: 'nc6', name: 'Pearl / Boba', price: 10 },
+                { id: 'nc7', name: 'Cream Cheese Foam', price: 15 }, { id: 'nc8', name: 'Extra Chocolate Drizzle', price: 10 }
             ],
             fruitSoda: [
-                { id: 'fs1', name: 'Strawberry Syrup', price: 10 },
-                { id: 'fs2', name: 'Four Seasons Syrup', price: 10 },
-                { id: 'fs3', name: 'Blueberry Syrup', price: 10 },
-                { id: 'fs4', name: 'Lychee Syrup', price: 10 },
-                { id: 'fs5', name: 'Green Apple Syrup', price: 10 },
-                { id: 'fs6', name: 'Orange Syrup', price: 10 },
-                { id: 'fs7', name: 'Lemon Slices', price: 10 },
-                { id: 'fs8', name: 'Popping Boba', price: 15 }
+                { id: 'fs1', name: 'Strawberry Syrup', price: 10 }, { id: 'fs2', name: 'Four Seasons Syrup', price: 10 },
+                { id: 'fs3', name: 'Blueberry Syrup', price: 10 }, { id: 'fs4', name: 'Lychee Syrup', price: 10 },
+                { id: 'fs5', name: 'Green Apple Syrup', price: 10 }, { id: 'fs6', name: 'Orange Syrup', price: 10 },
+                { id: 'fs7', name: 'Lemon Slices', price: 10 }, { id: 'fs8', name: 'Popping Boba', price: 15 }
             ],
             food: [
-                { id: 'f1', name: 'Extra Rice', price: 15 },
-                { id: 'f2', name: 'Fried Egg', price: 15 },
-                { id: 'f3', name: 'Extra Gravy', price: 10 },
-                { id: 'f4', name: 'Cheese Sauce', price: 15 },
-                { id: 'f5', name: 'Extra Siomai', price: 20 },
-                { id: 'f6', name: 'Extra Lumpia', price: 10 },
-                { id: 'f7', name: 'Extra Hotdog', price: 15 },
-                { id: 'f8', name: 'Extra Adobo Top', price: 20 },
-                { id: 'f9', name: 'Extra Sisig Top', price: 20 },
-                { id: 'f10', name: 'Chili Garlic', price: 10 }
+                { id: 'f1', name: 'Extra Rice', price: 15 }, { id: 'f2', name: 'Fried Egg', price: 15 },
+                { id: 'f3', name: 'Extra Gravy', price: 10 }, { id: 'f4', name: 'Cheese Sauce', price: 15 },
+                { id: 'f5', name: 'Extra Siomai', price: 20 }, { id: 'f6', name: 'Extra Lumpia Shanghai', price: 10 },
+                { id: 'f7', name: 'Extra Hotdog', price: 15 }, { id: 'f8', name: 'Extra Adobo Topping', price: 20 },
+                { id: 'f9', name: 'Extra Sisig Topping', price: 20 }, { id: 'f10', name: 'Chili Garlic', price: 10 },
+                { id: 'f11', name: 'Atsara', price: 10 }
             ]
         };
 
+        const categories = ["All", "Rice Meals", "A La Carte", "Hot Drinks", "Iced Coffee", "Iced Americano", "Non-Coffee", "Fruit Soda", "Soda Float"];
         let ticket = [];
         let activeCategory = "All";
         let modalProduct = null;
         let modalAddons = [];
         let orderTotal = 0;
         
-        // This will be populated by Firebase
         window.unavailableIds = [];
+        window.inventoryData = [];
 
         document.addEventListener('DOMContentLoaded', () => {
             renderTabs();
@@ -449,6 +387,68 @@
                 document.getElementById('live-clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             }, 1000);
         }
+
+        // --- Recipe & Stock Checking Logic ---
+        function getDeductions(name) {
+            const recipeMap = {
+                "Sisig": [{item: "Rice", amount: 0.2}, {item: "Pork", amount: 0.15}, {item: "Round Paper Bowls", amount: 1}],
+                "Hungarian": [{item: "Rice", amount: 0.2}, {item: "Round Paper Bowls", amount: 1}],
+                "Pork Katsu": [{item: "Rice", amount: 0.2}, {item: "Pork", amount: 0.15}, {item: "Round Paper Bowls", amount: 1}],
+                "Chicken Adobo": [{item: "Rice", amount: 0.2}, {item: "Round Paper Bowls", amount: 1}],
+                "Chicken Pastil": [{item: "Rice", amount: 0.2}, {item: "Round Paper Bowls", amount: 1}],
+                "Lumpia Shanghai (3 pcs)": [{item: "Rice", amount: 0.2}, {item: "Lumpia", amount: 3}, {item: "Round Paper Bowls", amount: 1}],
+                "Hotdog (2 pcs)": [{item: "Rice", amount: 0.2}, {item: "Round Paper Bowls", amount: 1}],
+                "Siomai (4 pcs) Meal": [{item: "Rice", amount: 0.2}, {item: "Siomai", amount: 4}, {item: "Round Paper Bowls", amount: 1}],
+                "Siomai (4 pcs)": [{item: "Siomai", amount: 4}, {item: "Round Paper Bowls", amount: 1}],
+                "Lumpia Shanghai": [{item: "Lumpia", amount: 3}, {item: "Round Paper Bowls", amount: 1}],
+                "Adobo": [{item: "Round Paper Bowls", amount: 1}],
+                "Dinuguan": [{item: "Round Paper Bowls", amount: 1}],
+                "Rice": [{item: "Rice", amount: 0.2}],
+                "Brewed Coffee": [{item: "Coffee Beans", amount: 0.015}, {item: "Hot Cups", amount: 1}],
+                "Café Latte": [{item: "Coffee Beans", amount: 0.015}, {item: "Fresh Milk", amount: 0.05}, {item: "Hot Cups", amount: 1}],
+                "Hot Chocolate": [{item: "Chocolate Syrup", amount: 0.03}, {item: "Hot Cups", amount: 1}],
+                "Vietnamese Coffee": [{item: "Coffee Beans", amount: 0.015}, {item: "Condensed Milk", amount: 0.05}, {item: "Ice", amount: 0.07}, {item: "Cold Cups", amount: 1}],
+                "Latte": [{item: "Coffee Beans", amount: 0.015}, {item: "Fresh Milk", amount: 0.05}, {item: "Ice", amount: 0.07}, {item: "Cold Cups", amount: 1}],
+                "Greek Frappe": [{item: "Coffee Beans", amount: 0.015}, {item: "Ice", amount: 0.07}, {item: "Cold Cups", amount: 1}],
+                "Café Mocha": [{item: "Coffee Beans", amount: 0.015}, {item: "Chocolate Syrup", amount: 0.03}, {item: "Ice", amount: 0.07}, {item: "Cold Cups", amount: 1}],
+                "Matcha Dalgona": [{item: "Matcha Powder", amount: 15}, {item: "Fresh Milk", amount: 0.05}, {item: "Ice", amount: 0.07}, {item: "Cold Cups", amount: 1}],
+                "Coke Float": [{item: "Coke", amount: 1}, {item: "Ice", amount: 0.07}, {item: "Cold Cups", amount: 1}],
+                "Strawberry": [{item: "Ice", amount: 0.07}, {item: "Cold Cups", amount: 1}],
+                "Extra Espresso / Strong Shot": [{item: "Coffee Beans", amount: 0.015}],
+                "Extra Espresso": [{item: "Coffee Beans", amount: 0.015}],
+                "Fresh Milk": [{item: "Fresh Milk", amount: 0.03}],
+                "Condensed Milk": [{item: "Condensed Milk", amount: 0.03}],
+                "Lemon Extract Juice": [{item: "Lemon Extract Juice", amount: 15}],
+                "Lemon Juice": [{item: "Lemon Extract Juice", amount: 15}],
+                "Chocolate Syrup": [{item: "Chocolate Syrup", amount: 0.015}],
+                "Matcha Powder": [{item: "Matcha Powder", amount: 10}],
+                "Extra Rice": [{item: "Rice", amount: 0.2}],
+                "Extra Siomai": [{item: "Siomai", amount: 2}],
+                "Extra Lumpia": [{item: "Lumpia", amount: 2}],
+                "Extra Lumpia Shanghai": [{item: "Lumpia", amount: 2}]
+            };
+
+            if (recipeMap[name]) return recipeMap[name];
+            
+            let genericDeductions = [];
+            const lowName = name.toLowerCase();
+            if (lowName.includes("coffee") || lowName.includes("americano") || lowName.includes("latte")) genericDeductions.push({item: "Coffee Beans", amount: 0.015});
+            if (lowName.includes("iced") || lowName.includes("float") || lowName.includes("soda")) genericDeductions.push({item: "Ice", amount: 0.07}, {item: "Cold Cups", amount: 1});
+            if (lowName.includes("hot")) genericDeductions.push({item: "Hot Cups", amount: 1});
+            return genericDeductions;
+        }
+
+        window.isAvailable = function(id, name) {
+            if (window.unavailableIds && window.unavailableIds.includes(id)) return false;
+            if (!window.inventoryData || window.inventoryData.length === 0) return true;
+
+            const deductions = getDeductions(name);
+            for (let d of deductions) {
+                const invItem = window.inventoryData.find(i => i.item === d.item);
+                if (invItem && invItem.stock < d.amount) return false; 
+            }
+            return true;
+        };
 
         function getAddonsForCategory(cat) {
             if (["Hot Drinks", "Iced Coffee", "Iced Americano"].includes(cat)) return addOnsData.coffee;
@@ -473,35 +473,31 @@
             });
         }
 
-        // Global access so Firebase can trigger re-renders
         window.renderProducts = function() {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = '';
             const filtered = activeCategory === "All" ? products : products.filter(p => p.category === activeCategory);
 
             filtered.forEach(p => {
-                const isUnavailable = window.unavailableIds.includes(p.id);
-                
+                const available = window.isAvailable(p.id, p.name);
                 let colorClass = 'bg-gray-100 text-gray-600';
                 if(p.category.includes('Coffee') || p.category.includes('Hot')) colorClass = 'bg-coffee-100 text-coffee-800';
                 else if(p.category.includes('Soda')) colorClass = 'bg-amber-100 text-amber-800';
 
                 const el = document.createElement('div');
-                el.className = `bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden transition-all select-none flex flex-col ${isUnavailable ? 'opacity-60 grayscale cursor-not-allowed' : 'hover:shadow-md hover:border-coffee-300 cursor-pointer active:scale-95'}`;
+                el.className = `bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden transition-all select-none flex flex-col ${!available ? 'opacity-60 grayscale cursor-not-allowed' : 'hover:shadow-md hover:border-coffee-300 cursor-pointer active:scale-95'}`;
                 
-                if (!isUnavailable) {
-                    el.onclick = () => openAddonModal(p.id);
-                }
-                
+                if (available) el.onclick = () => openAddonModal(p.id);
+
                 el.innerHTML = `
                     <div class="h-28 bg-gray-100 relative">
                         <img src="${p.image}" class="w-full h-full object-cover pointer-events-none" loading="lazy">
                         <span class="absolute top-2 left-2 ${colorClass} text-[9px] font-bold uppercase px-2 py-0.5 rounded shadow-sm">${p.category}</span>
-                        ${isUnavailable ? '<div class="absolute inset-0 bg-black/40 flex items-center justify-center z-10"><span class="bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded">UNAVAILABLE</span></div>' : ''}
+                        ${!available ? '<div class="absolute inset-0 bg-black/40 flex items-center justify-center z-10"><span class="bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded">SOLD OUT</span></div>' : ''}
                     </div>
                     <div class="p-3 flex flex-col flex-1 justify-between">
                         <h3 class="font-bold text-gray-800 text-sm leading-tight mb-2 line-clamp-2">${p.name}</h3>
-                        <span class="text-coffee-600 font-bold">₱${p.price.toFixed(2)}</span>
+                        <span class="font-bold ${available ? 'text-coffee-600' : 'text-red-500'}">${available ? `₱${p.price.toFixed(2)}` : 'N/A'}</span>
                     </div>
                 `;
                 grid.appendChild(el);
@@ -569,30 +565,28 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        // --- Ticket Logic ---
-        function clearOrder() {
+        window.clearOrder = function() {
             if(ticket.length === 0) return;
             if(confirm('Are you sure you want to clear the entire order?')) {
                 ticket = [];
                 renderTicket();
             }
-        }
+        };
 
-        function changeTicketQty(tid, delta) {
+        window.changeTicketQty = function(tid, delta) {
             const item = ticket.find(i => i.ticketId === tid);
             if(!item) return;
             item.quantity += delta;
             if(item.quantity <= 0) removeTicketItem(tid);
             else renderTicket();
-        }
+        };
 
-        function removeTicketItem(tid) {
+        window.removeTicketItem = function(tid) {
             ticket = ticket.filter(i => i.ticketId !== tid);
             renderTicket();
-        }
+        };
 
-        // --- Add-on Modal Logic ---
-        function openAddonModal(pid) {
+        window.openAddonModal = function(pid) {
             modalProduct = products.find(p => p.id === pid);
             if(!modalProduct) return;
             
@@ -612,30 +606,31 @@
             list.innerHTML = '';
             
             availableAddons.forEach(a => {
+                const isAvail = window.isAvailable(a.id, a.name);
                 list.innerHTML += `
-                    <label class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer select-none transition-colors">
+                    <label class="flex items-center justify-between p-3 border rounded-lg transition-colors ${isAvail ? 'border-gray-200 hover:bg-gray-50 cursor-pointer' : 'border-gray-100 bg-gray-50 opacity-60 cursor-not-allowed'}">
                         <div class="flex items-center gap-3">
-                            <input type="checkbox" class="w-5 h-5 text-coffee-600 rounded border-gray-300 focus:ring-coffee-500" 
-                                   onchange="toggleModalAddon('${a.id}', '${a.name}', ${a.price}, this.checked)">
-                            <span class="text-sm font-bold text-gray-700">${a.name}</span>
+                            <input type="checkbox" class="w-5 h-5 rounded focus:ring-coffee-500 ${isAvail ? 'text-coffee-600 border-gray-300' : 'border-gray-200'}" 
+                                   onchange="toggleModalAddon('${a.id}', '${a.name}', ${a.price}, this.checked)" ${isAvail ? '' : 'disabled'}>
+                            <span class="text-sm font-bold ${isAvail ? 'text-gray-700' : 'text-gray-400 line-through'}">${a.name}</span>
                         </div>
-                        <span class="text-sm font-bold text-coffee-600">+₱${a.price.toFixed(2)}</span>
+                        <span class="text-sm font-bold ${isAvail ? 'text-coffee-600' : 'text-red-500'}">${isAvail ? `+₱${a.price.toFixed(2)}` : 'Sold Out'}</span>
                     </label>
                 `;
             });
 
             document.getElementById('addon-modal').classList.remove('hidden');
-        }
+        };
 
-        function closeAddonModal() {
+        window.closeAddonModal = function() {
             document.getElementById('addon-modal').classList.add('hidden');
-        }
+        };
 
-        function toggleModalAddon(id, name, price, checked) {
+        window.toggleModalAddon = function(id, name, price, checked) {
             if(checked) modalAddons.push({id, name, price});
             else modalAddons = modalAddons.filter(a => a.id !== id);
             updateAddonModalTotal();
-        }
+        };
 
         function updateAddonModalTotal() {
             if(!modalProduct) return;
@@ -643,7 +638,7 @@
             document.getElementById('addon-total-price').textContent = `₱${(modalProduct.price + extra).toFixed(2)}`;
         }
 
-        function confirmAddProduct() {
+        window.confirmAddProduct = function() {
             if(!modalProduct) return;
             
             const addonIdString = modalAddons.map(a => a.id).sort().join('-');
@@ -655,21 +650,14 @@
             if(existing) {
                 existing.quantity += 1;
             } else {
-                ticket.push({
-                    ticketId,
-                    ...modalProduct,
-                    addons: [...modalAddons],
-                    unitPrice,
-                    quantity: 1
-                });
+                ticket.push({ ticketId, ...modalProduct, addons: [...modalAddons], unitPrice, quantity: 1 });
             }
 
             renderTicket();
             closeAddonModal();
-        }
+        };
 
-        // --- Payment Logic ---
-        function openPaymentModal() {
+        window.openPaymentModal = function() {
             if(ticket.length === 0) return;
             
             const summary = document.getElementById('payment-summary-items');
@@ -699,24 +687,23 @@
 
             document.getElementById('payment-modal').classList.remove('hidden');
             setTimeout(() => document.getElementById('cash-input').focus(), 100);
-        }
+        };
 
-        function closePaymentModal() {
+        window.closePaymentModal = function() {
             document.getElementById('payment-modal').classList.add('hidden');
-        }
+        };
 
-        function setCashExact() {
+        window.setCashExact = function() {
             document.getElementById('cash-input').value = orderTotal;
-            calculateChange();
-        }
+            window.calculateChange();
+        };
 
-        function setCash(amount) {
-            const input = document.getElementById('cash-input');
-            input.value = amount;
-            calculateChange();
-        }
+        window.setCash = function(amount) {
+            document.getElementById('cash-input').value = amount;
+            window.calculateChange();
+        };
 
-        function calculateChange() {
+        window.calculateChange = function() {
             const tendered = parseFloat(document.getElementById('cash-input').value) || 0;
             const changeEl = document.getElementById('change-due');
             const badge = document.getElementById('payment-status-badge');
@@ -745,9 +732,9 @@
                 }
                 btn.disabled = true;
             }
-        }
+        };
 
-        async function completeOrder() {
+        window.completeOrder = async function() {
             const tendered = parseFloat(document.getElementById('cash-input').value) || 0;
             if (tendered < orderTotal) return;
 
@@ -758,10 +745,8 @@
             btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Processing...';
             btn.disabled = true;
 
-            // Save POS transaction to cloud
             const success = await window.submitPosOrderToFirebase(orderTotal, ticket);
             
-            // Re-enable button
             btn.innerHTML = originalHtml;
             btn.disabled = false;
 
@@ -769,9 +754,8 @@
                 closePaymentModal();
                 ticket = [];
                 renderTicket();
-                if (window.showToast) window.showToast(`Order Complete! Change: ₱${change.toFixed(2)}`, "success");
             }
-        }
+        };
     </script>
 </body>
 </html>
