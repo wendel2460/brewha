@@ -281,8 +281,8 @@
     <!-- Firebase Connection for Customer Menu -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDsap0Yqqlr5ghuhXJuCbItWCQRNXKJMP8",
@@ -300,12 +300,31 @@
         const firestoreAppId = 'brewha-cafe';
 
         let user = null;
-        const initAuth = async () => {
-            try { await signInAnonymously(auth); } 
-            catch(e) { console.error(e); }
-        };
-        initAuth();
-        onAuthStateChanged(auth, (u) => { user = u; });
+        let currentUserProfile = null;
+
+        onAuthStateChanged(auth, async (u) => { 
+            user = u; 
+            if (user) {
+                try {
+                    // Fetch real Student profile from Firebase if they logged in
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (userDoc.exists()) currentUserProfile = userDoc.data();
+                } catch(e) {
+                    console.error("Error fetching profile", e);
+                }
+
+                // Listen to Catalog Availability from Admin
+                const availRef = doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'settings', 'availability');
+                onSnapshot(availRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        window.unavailableIds = docSnap.data().ids || [];
+                    } else {
+                        window.unavailableIds = [];
+                    }
+                    if (window.renderProducts) window.renderProducts();
+                });
+            }
+        });
 
         window.submitOrderToFirebase = async function(orderTotal, cartItems) {
             if (!user) return null;
@@ -320,9 +339,12 @@
                 return name;
             });
 
+            // Use Real Name
+            const customerName = currentUserProfile && currentUserProfile.fullName ? currentUserProfile.fullName : 'Online Guest';
+
             const newOrder = {
                 source: 'Online',
-                customer: 'Online Guest', 
+                customer: customerName, 
                 items: formattedItems,
                 total: orderTotal,
                 status: 'Pending',
@@ -342,50 +364,50 @@
 
     <script>
         const rawMenu = [
-            { name: "Fried Egg", price: 15.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1525916801717-94ec18db35b1?auto=format&fit=crop&w=400&q=80" },
-            { name: "Siomai (4 pcs)", price: 25.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=400&q=80" },
-            { name: "Lumpia Shanghai", price: 10.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=400&q=80" },
-            { name: "Chicken Pastil", price: 40.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=400&q=80" },
-            { name: "Adobo", price: 50.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1598515322629-943015f6ceee?auto=format&fit=crop&w=400&q=80" },
-            { name: "Rice", price: 15.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=400&q=80" },
-            { name: "Dinuguan", price: 50.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1548943487-a2e4e43b4850?auto=format&fit=crop&w=400&q=80" },
-            { name: "Puto", price: 10.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1600289031464-74d374b64991?auto=format&fit=crop&w=400&q=80" },
-            { name: "Hungarian", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=400&q=80" },
-            { name: "Pork Katsu", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1578160112054-954a67602b88?auto=format&fit=crop&w=400&q=80" },
-            { name: "Chicken Adobo", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=400&q=80" },
-            { name: "Sisig", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1627308595229-7830f5c95f9d?auto=format&fit=crop&w=400&q=80" },
-            { name: "Chicken Pastil", price: 50.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=400&q=80" },
-            { name: "Lumpia Shanghai (3 pcs)", price: 50.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=400&q=80" },
-            { name: "Hotdog (2 pcs)", price: 40.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1541214113241-21578d2d9b62?auto=format&fit=crop&w=400&q=80" },
-            { name: "Siomai (4 pcs) Meal", price: 35.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=400&q=80" },
-            { name: "Brewed Coffee", price: 25.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=400&q=80" },
-            { name: "Café Latte", price: 35.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?auto=format&fit=crop&w=400&q=80" },
-            { name: "Hot Chocolate", price: 35.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?auto=format&fit=crop&w=400&q=80" },
-            { name: "Vietnamese Coffee", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=400&q=80" },
-            { name: "Latte", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=400&q=80" },
-            { name: "Greek Frappe", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=400&q=80" },
-            { name: "Café Mocha", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=400&q=80" },
-            { name: "Honey-Lemon", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1527661591475-527312dd65f5?auto=format&fit=crop&w=400&q=80" },
-            { name: "Lychee-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=400&q=80" },
-            { name: "Orange-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1600271886742-f049cd451b08?auto=format&fit=crop&w=400&q=80" },
-            { name: "Coconut-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1595981267035-7b04d9b4b005?auto=format&fit=crop&w=400&q=80" },
-            { name: "Iced Chocolate", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1546548970-71785318a306?auto=format&fit=crop&w=400&q=80" },
-            { name: "Choco Float", price: 45.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1553177595-4de2bb0842b9?auto=format&fit=crop&w=400&q=80" },
-            { name: "Milky Strawberry", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1553787762-b5f528158c9c?auto=format&fit=crop&w=400&q=80" },
-            { name: "Matcha Dalgona", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&w=400&q=80" },
-            { name: "Strawberry", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80" },
-            { name: "Four Seasons", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400&q=80" },
-            { name: "Blue Lemonade", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=400&q=80" },
-            { name: "Lychee", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=400&q=80" },
-            { name: "Blueberry", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1597403491447-3ab08f8e44dc?auto=format&fit=crop&w=400&q=80" },
-            { name: "Green Apple", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80" },
-            { name: "Orange", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1600271886742-f049cd451b08?auto=format&fit=crop&w=400&q=80" },
-            { name: "Coke Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1628873041695-095562095ce9?auto=format&fit=crop&w=400&q=80" },
-            { name: "Strawberry Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&w=400&q=80" },
-            { name: "Blueberry Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1597403491447-3ab08f8e44dc?auto=format&fit=crop&w=400&q=80" }
+            { id: 1, name: "Fried Egg", price: 15.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1525916801717-94ec18db35b1?auto=format&fit=crop&w=400&q=80" },
+            { id: 2, name: "Siomai (4 pcs)", price: 25.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=400&q=80" },
+            { id: 3, name: "Lumpia Shanghai", price: 10.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=400&q=80" },
+            { id: 4, name: "Chicken Pastil", price: 40.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=400&q=80" },
+            { id: 5, name: "Adobo", price: 50.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1598515322629-943015f6ceee?auto=format&fit=crop&w=400&q=80" },
+            { id: 6, name: "Rice", price: 15.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=400&q=80" },
+            { id: 7, name: "Dinuguan", price: 50.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1548943487-a2e4e43b4850?auto=format&fit=crop&w=400&q=80" },
+            { id: 8, name: "Puto", price: 10.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1600289031464-74d374b64991?auto=format&fit=crop&w=400&q=80" },
+            { id: 9, name: "Hungarian", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=400&q=80" },
+            { id: 10, name: "Pork Katsu", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1578160112054-954a67602b88?auto=format&fit=crop&w=400&q=80" },
+            { id: 11, name: "Chicken Adobo", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=400&q=80" },
+            { id: 12, name: "Sisig", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1627308595229-7830f5c95f9d?auto=format&fit=crop&w=400&q=80" },
+            { id: 13, name: "Chicken Pastil", price: 50.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=400&q=80" },
+            { id: 14, name: "Lumpia Shanghai (3 pcs)", price: 50.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=400&q=80" },
+            { id: 15, name: "Hotdog (2 pcs)", price: 40.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1541214113241-21578d2d9b62?auto=format&fit=crop&w=400&q=80" },
+            { id: 16, name: "Siomai (4 pcs) Meal", price: 35.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=400&q=80" },
+            { id: 17, name: "Brewed Coffee", price: 25.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=400&q=80" },
+            { id: 18, name: "Café Latte", price: 35.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?auto=format&fit=crop&w=400&q=80" },
+            { id: 19, name: "Hot Chocolate", price: 35.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?auto=format&fit=crop&w=400&q=80" },
+            { id: 20, name: "Vietnamese Coffee", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=400&q=80" },
+            { id: 21, name: "Latte", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=400&q=80" },
+            { id: 22, name: "Greek Frappe", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=400&q=80" },
+            { id: 23, name: "Café Mocha", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=400&q=80" },
+            { id: 24, name: "Honey-Lemon", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1527661591475-527312dd65f5?auto=format&fit=crop&w=400&q=80" },
+            { id: 25, name: "Lychee-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=400&q=80" },
+            { id: 26, name: "Orange-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1600271886742-f049cd451b08?auto=format&fit=crop&w=400&q=80" },
+            { id: 27, name: "Coconut-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1595981267035-7b04d9b4b005?auto=format&fit=crop&w=400&q=80" },
+            { id: 28, name: "Iced Chocolate", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1546548970-71785318a306?auto=format&fit=crop&w=400&q=80" },
+            { id: 29, name: "Choco Float", price: 45.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1553177595-4de2bb0842b9?auto=format&fit=crop&w=400&q=80" },
+            { id: 30, name: "Milky Strawberry", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1553787762-b5f528158c9c?auto=format&fit=crop&w=400&q=80" },
+            { id: 31, name: "Matcha Dalgona", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&w=400&q=80" },
+            { id: 32, name: "Strawberry", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80" },
+            { id: 33, name: "Four Seasons", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400&q=80" },
+            { id: 34, name: "Blue Lemonade", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=400&q=80" },
+            { id: 35, name: "Lychee", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=400&q=80" },
+            { id: 36, name: "Blueberry", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1597403491447-3ab08f8e44dc?auto=format&fit=crop&w=400&q=80" },
+            { id: 37, name: "Green Apple", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80" },
+            { id: 38, name: "Orange", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1600271886742-f049cd451b08?auto=format&fit=crop&w=400&q=80" },
+            { id: 39, name: "Coke Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1628873041695-095562095ce9?auto=format&fit=crop&w=400&q=80" },
+            { id: 40, name: "Strawberry Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&w=400&q=80" },
+            { id: 41, name: "Blueberry Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1597403491447-3ab08f8e44dc?auto=format&fit=crop&w=400&q=80" }
         ];
 
-        const products = rawMenu.map((item, index) => ({ id: index + 1, ...item }));
+        const products = rawMenu;
 
         const addOnsData = {
             coffee: [
@@ -441,6 +463,8 @@
         let activeCategory = "All";
         let currentModalProduct = null;
         let currentSelectedAddons = [];
+        
+        window.unavailableIds = [];
 
         document.addEventListener('DOMContentLoaded', () => {
             renderTabs();
@@ -479,7 +503,7 @@
             renderProducts();
         }
 
-        function renderProducts() {
+        window.renderProducts = function() {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = '';
 
@@ -488,29 +512,31 @@
                 : products.filter(p => p.category === activeCategory);
 
             filteredProducts.forEach((product, index) => {
+                const isUnavailable = window.unavailableIds.includes(product.id);
                 let tagColor = 'bg-white/90 text-coffee-900';
+                
                 if(product.category.includes('Coffee') || product.category.includes('Hot')) tagColor = 'bg-coffee-900/90 text-white';
                 else if(product.category.includes('Soda')) tagColor = 'bg-amber-500/90 text-white';
 
                 const card = document.createElement('div');
-                card.className = `bg-white rounded-2xl overflow-hidden border border-coffee-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col opacity-0 animate-pop-in`;
+                card.className = `bg-white rounded-2xl overflow-hidden border border-coffee-100 shadow-sm transition-all duration-300 flex flex-col opacity-0 animate-pop-in ${isUnavailable ? 'opacity-60 grayscale' : 'hover:shadow-xl'}`;
                 card.style.animationDelay = `${(index % 10) * 50}ms`;
 
                 card.innerHTML = `
-                    <div class="relative h-48 overflow-hidden bg-coffee-50 cursor-pointer group" onclick="openProductModal(${product.id})">
+                    <div class="relative h-48 overflow-hidden bg-coffee-50 ${isUnavailable ? 'cursor-not-allowed' : 'cursor-pointer group'}" ${!isUnavailable ? `onclick="openProductModal(${product.id})"` : ''}>
                         <span class="absolute top-3 left-3 ${tagColor} backdrop-blur text-[10px] uppercase tracking-wider font-bold px-3 py-1 rounded-full shadow-sm z-10">${product.category}</span>
-                        <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500 z-0"></div>
-                        <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-in-out" loading="lazy">
+                        ${isUnavailable ? '<div class="absolute inset-0 bg-black/40 flex items-center justify-center z-20"><span class="bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded uppercase tracking-wider shadow-lg">Sold Out</span></div>' : '<div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500 z-0"></div>'}
+                        <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover ${isUnavailable ? '' : 'transform group-hover:scale-110 transition-transform duration-700 ease-in-out'}" loading="lazy">
                     </div>
                     <div class="p-5 flex flex-col flex-grow">
-                        <div class="flex justify-between items-start mb-4 gap-2 cursor-pointer" onclick="openProductModal(${product.id})">
+                        <div class="flex justify-between items-start mb-4 gap-2 ${isUnavailable ? 'cursor-not-allowed' : 'cursor-pointer'}" ${!isUnavailable ? `onclick="openProductModal(${product.id})"` : ''}>
                             <h3 class="text-lg font-serif font-bold text-coffee-950 leading-tight">${product.name}</h3>
                             <span class="text-lg font-bold text-coffee-600 whitespace-nowrap">₱${product.price.toFixed(2)}</span>
                         </div>
                         <div class="mt-auto">
-                            <button onclick="openProductModal(${product.id})" class="w-full bg-coffee-50 text-coffee-800 hover:bg-coffee-900 hover:text-white py-2.5 rounded-xl text-sm font-medium transition-colors duration-300 flex justify-center items-center gap-2 border border-coffee-200">
-                                <i class="ph ph-plus font-bold"></i>
-                                <span>Add to Order</span>
+                            <button ${isUnavailable ? 'disabled' : `onclick="openProductModal(${product.id})"`} class="w-full ${isUnavailable ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-coffee-50 text-coffee-800 hover:bg-coffee-900 hover:text-white border-coffee-200'} py-2.5 rounded-xl text-sm font-medium transition-colors duration-300 flex justify-center items-center gap-2 border">
+                                <i class="ph ph-${isUnavailable ? 'prohibit' : 'plus'} font-bold"></i>
+                                <span>${isUnavailable ? 'Unavailable' : 'Add to Order'}</span>
                             </button>
                         </div>
                     </div>
