@@ -76,6 +76,7 @@
 </head>
 <body class="bg-coffee-50 text-coffee-950 font-sans antialiased overflow-x-hidden relative">
 
+    <!-- Navigation -->
     <nav class="fixed w-full z-40 glass-nav transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
@@ -103,6 +104,7 @@
         </div>
     </nav>
 
+    <!-- Hero Section -->
     <section class="hero-pattern min-h-[85vh] flex items-center justify-center pt-20">
         <div class="text-center px-4 max-w-4xl mx-auto">
             <span class="block text-coffee-300 font-medium tracking-widest uppercase mb-4 opacity-0 animate-fade-in-up">Meals & Refreshments</span>
@@ -120,6 +122,7 @@
         </div>
     </section>
 
+    <!-- Menu Section -->
     <section id="menu" class="py-24 bg-white relative min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-10">
@@ -130,14 +133,17 @@
 
             <div class="mb-12 overflow-x-auto no-scrollbar pb-4">
                 <div id="category-tabs" class="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-3 w-max md:w-auto mx-auto">
+                    <!-- Tabs injected by JS -->
                 </div>
             </div>
 
             <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <!-- Products injected by JS -->
             </div>
         </div>
     </section>
 
+    <!-- Footer -->
     <footer id="about" class="bg-coffee-950 text-coffee-200 py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
             <div>
@@ -155,8 +161,12 @@
             <div>
                 <h3 class="text-white font-serif text-xl mb-6">Connect</h3>
                 <div class="flex justify-center md:justify-start space-x-4">
-                    <a href="#" class="w-10 h-10 rounded-full bg-coffee-900 flex items-center justify-center hover:bg-coffee-600 transition-colors text-white"><i class="ph ph-instagram-logo text-xl"></i></a>
-                    <a href="#" class="w-10 h-10 rounded-full bg-coffee-900 flex items-center justify-center hover:bg-coffee-600 transition-colors text-white"><i class="ph ph-facebook-logo text-xl"></i></a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-coffee-900 flex items-center justify-center hover:bg-coffee-600 transition-colors text-white">
+                        <i class="ph ph-instagram-logo text-xl"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-coffee-900 flex items-center justify-center hover:bg-coffee-600 transition-colors text-white">
+                        <i class="ph ph-facebook-logo text-xl"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -165,6 +175,7 @@
         </div>
     </footer>
 
+    <!-- Cart Slide-out Drawer -->
     <div id="cart-overlay" class="fixed inset-0 bg-coffee-950/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300" onclick="toggleCart()"></div>
     
     <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white z-50 transform translate-x-full transition-transform duration-300 flex flex-col shadow-2xl border-l border-coffee-100">
@@ -198,25 +209,31 @@
         </div>
     </div>
 
-    <!-- NEW FIXED SIDE-BY-SIDE MODAL -->
-    <div id="product-modal" class="fixed inset-0 bg-coffee-950/80 backdrop-blur-md z-[70] hidden flex items-end md:items-center justify-center p-0 md:p-4 opacity-0 transition-opacity duration-300">
+    <!-- STRICT SIDE-BY-SIDE Product Details & Add-ons Modal -->
+    <div id="product-modal" class="fixed inset-0 bg-coffee-950/80 backdrop-blur-md z-[70] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <!-- Close overlay -->
         <div class="absolute inset-0" onclick="closeProductModal()"></div>
-        <div class="bg-white w-full md:max-w-4xl md:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row h-[90vh] md:h-auto md:max-h-[85vh] transform translate-y-full md:scale-95 transition-all duration-300 relative z-10" id="pm-content">
+        
+        <!-- Modal Container (Strict 90vh max height to prevent button push-off) -->
+        <div class="bg-white w-full md:max-w-4xl rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row h-[90vh] md:h-[80vh] transform scale-95 transition-all duration-300 relative z-10" id="pm-content">
             
-            <!-- Left Side: Image -->
-            <div class="relative h-48 md:h-auto md:w-1/2 bg-coffee-100 flex-shrink-0">
-                <img id="pm-image" src="" class="w-full h-full object-cover md:absolute md:inset-0" alt="">
+            <!-- Left Side: Image (Shrinks on mobile, full height on desktop) -->
+            <div class="relative h-48 md:h-full md:w-1/2 bg-coffee-100 flex-shrink-0">
+                <img id="pm-image" src="" class="w-full h-full object-cover" alt="">
                 <button onclick="closeProductModal()" class="absolute top-4 right-4 md:hidden bg-white/80 backdrop-blur text-coffee-900 p-2 rounded-full shadow hover:bg-white transition-colors z-20">
                     <i class="ph ph-x font-bold"></i>
                 </button>
             </div>
 
-            <!-- Right Side: Scrollable Content & Fixed Button -->
+            <!-- Right Side: Fixed Layout -->
             <div class="flex-1 flex flex-col md:w-1/2 relative min-h-0 bg-white">
+                
+                <!-- Desktop Close Button -->
                 <button onclick="closeProductModal()" class="hidden md:flex absolute top-4 right-4 bg-gray-100 text-gray-500 hover:text-coffee-900 hover:bg-gray-200 p-2 rounded-full shadow-sm transition-colors z-20">
                     <i class="ph ph-x font-bold"></i>
                 </button>
 
+                <!-- Scrollable Details & Addons Area -->
                 <div class="p-6 md:p-8 overflow-y-auto flex-1 no-scrollbar">
                     <div class="mb-6 md:pr-10">
                         <div class="flex justify-between items-start gap-4 flex-col sm:flex-row">
@@ -237,12 +254,14 @@
                     </div>
                 </div>
 
-                <div class="w-full p-4 border-t border-coffee-100 bg-white/90 flex-shrink-0 shadow-[0_-4px_15px_rgb(0,0,0,0.05)]">
+                <!-- Fixed Bottom Action Bar -->
+                <div class="w-full p-4 border-t border-coffee-100 bg-white flex-shrink-0 shadow-[0_-4px_15px_rgb(0,0,0,0.05)]">
                     <button onclick="confirmAddToCart()" class="w-full bg-coffee-900 text-white py-4 rounded-xl font-medium hover:bg-coffee-800 transition-transform active:scale-95 shadow-md flex justify-between items-center px-6">
                         <span class="flex items-center gap-2"><i class="ph ph-shopping-bag"></i> Add to Order</span>
                         <span id="pm-btn-price" class="font-bold text-lg"></span>
                     </button>
                 </div>
+
             </div>
         </div>
     </div>
@@ -542,7 +561,9 @@
                 "Extra Rice": [{item: "Rice", amount: 0.2}],
                 "Extra Siomai": [{item: "Siomai", amount: 2}],
                 "Extra Lumpia": [{item: "Lumpia", amount: 2}],
-                "Extra Lumpia Shanghai": [{item: "Lumpia", amount: 2}]
+                "Extra Lumpia Shanghai": [{item: "Lumpia", amount: 2}],
+                "Extra Adobo Topping": [{item: "Pork", amount: 0.1}],
+                "Extra Sisig Topping": [{item: "Pork", amount: 0.1}]
             };
 
             if (recipeMap[name]) return recipeMap[name];
@@ -556,10 +577,19 @@
         }
 
         window.isAvailable = function(id, name) {
-            // 1. Manually Disabled?
+            // 1. Directly Disabled via Admin Toggle
             if (window.unavailableIds && window.unavailableIds.includes(id)) return false;
 
-            // 2. Out of Stock?
+            // 2. Disabled because a related Base Product is Disabled (for Add-ons)
+            // e.g. "Extra Sisig Topping" is disabled if "Sisig" is manually disabled.
+            if (name) {
+                const relatedProduct = products.find(p => name.toLowerCase().includes(p.name.toLowerCase()) && p.name.length > 3);
+                if (relatedProduct && window.unavailableIds && window.unavailableIds.includes(relatedProduct.id)) {
+                    return false;
+                }
+            }
+
+            // 3. Out of Stock Check
             if (!window.inventoryData || window.inventoryData.length === 0) return true;
 
             const deductions = getDeductions(name);
@@ -604,22 +634,25 @@
                 else if(product.category.includes('Soda')) tagColor = 'bg-amber-500/90 text-white';
 
                 const card = document.createElement('div');
-                card.className = `bg-white rounded-2xl overflow-hidden border border-coffee-100 shadow-sm transition-all duration-300 flex flex-col opacity-0 animate-pop-in ${!available ? 'opacity-60 grayscale' : 'hover:shadow-xl'}`;
+                // Allow entire card to be clicked to open the modal
+                card.className = `bg-white rounded-2xl overflow-hidden border border-coffee-100 shadow-sm transition-all duration-300 flex flex-col opacity-0 animate-pop-in ${!available ? 'opacity-60 grayscale cursor-not-allowed' : 'hover:shadow-xl cursor-pointer'}`;
                 card.style.animationDelay = `${(index % 10) * 50}ms`;
+                if (available) card.onclick = () => openProductModal(product.id);
 
                 card.innerHTML = `
-                    <div class="relative h-48 overflow-hidden bg-coffee-50 ${!available ? 'cursor-not-allowed' : 'cursor-pointer group'}" ${available ? `onclick="openProductModal(${product.id})"` : ''}>
+                    <div class="relative h-48 overflow-hidden bg-coffee-50 group">
                         <span class="absolute top-3 left-3 ${tagColor} backdrop-blur text-[10px] uppercase tracking-wider font-bold px-3 py-1 rounded-full shadow-sm z-10">${product.category}</span>
                         ${!available ? '<div class="absolute inset-0 bg-black/40 flex items-center justify-center z-20"><span class="bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded uppercase tracking-wider shadow-lg">Sold Out</span></div>' : '<div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500 z-0"></div>'}
                         <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover ${!available ? '' : 'transform group-hover:scale-110 transition-transform duration-700 ease-in-out'}" loading="lazy">
                     </div>
                     <div class="p-5 flex flex-col flex-grow">
-                        <div class="flex justify-between items-start mb-4 gap-2 ${!available ? 'cursor-not-allowed' : 'cursor-pointer'}" ${available ? `onclick="openProductModal(${product.id})"` : ''}>
+                        <div class="flex justify-between items-start mb-4 gap-2">
                             <h3 class="text-lg font-serif font-bold text-coffee-950 leading-tight">${product.name}</h3>
                             <span class="text-lg font-bold ${available ? 'text-coffee-600' : 'text-red-500'} whitespace-nowrap">${available ? `₱${product.price.toFixed(2)}` : 'N/A'}</span>
                         </div>
-                        <div class="mt-auto">
-                            <button ${!available ? 'disabled' : `onclick="openProductModal(${product.id})"`} class="w-full ${!available ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-coffee-50 text-coffee-800 hover:bg-coffee-900 hover:text-white border-coffee-200'} py-2.5 rounded-xl text-sm font-medium transition-colors duration-300 flex justify-center items-center gap-2 border">
+                        <div class="mt-auto relative z-30">
+                            <!-- Pointer-events-none ensures the click bubbles up to the card wrapper -->
+                            <button ${!available ? 'disabled' : ''} class="w-full ${!available ? 'bg-gray-100 text-gray-400' : 'bg-coffee-50 text-coffee-800 border-coffee-200'} py-2.5 rounded-xl text-sm font-medium transition-colors duration-300 flex justify-center items-center gap-2 border pointer-events-none">
                                 <i class="ph ph-${!available ? 'prohibit' : 'plus'} font-bold"></i>
                                 <span>${!available ? 'Unavailable' : 'Add to Order'}</span>
                             </button>
