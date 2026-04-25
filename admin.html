@@ -118,7 +118,7 @@
     <!-- Firebase Integration -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- 1. FIREBASE CONFIGURATION ---
@@ -136,22 +136,19 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         
-        // This ensures the preview environment and your live deployment both work seamlessly
-        const firestoreAppId = typeof __app_id !== 'undefined' ? __app_id : 'brewha-cafe'; 
+        // Force strict syncing with the live deployed GitHub version
+        const firestoreAppId = 'brewha-cafe'; 
 
         // --- 2. AUTHENTICATION & LISTENERS ---
         let user = null;
         
         const initAuth = async () => {
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                // Explicitly sign in anonymously to avoid token mismatch with the Canvas sandbox
+                await signInAnonymously(auth);
             } catch(e) { 
                 console.error("Firebase Auth Error", e); 
-                showToast("Could not connect to database. Is Anonymous Auth enabled?", "warning");
+                showToast("Could not connect to database. Make sure Anonymous Auth is enabled in Firebase Console!", "warning");
                 const statusDot = document.getElementById('connection-status');
                 if (statusDot) {
                     statusDot.className = "w-2 h-2 bg-red-500 rounded-full";
