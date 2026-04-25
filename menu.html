@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brewha | Coffee & Comfort Food</title>
+    <title>Brewha | Admin Dashboard</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -19,10 +19,7 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        serif: ['Playfair Display', 'serif'],
-                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
                         coffee: {
                             50: '#fdf8f4', 100: '#f8efe6', 200: '#eedbc6',
@@ -30,300 +27,104 @@
                             600: '#b86a3d', 700: '#9a5334', 800: '#7e452e',
                             900: '#663928', 950: '#361c12',
                         }
-                    },
-                    animation: {
-                        'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
-                        'pop-in': 'popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
-                    },
-                    keyframes: {
-                        fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(15px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        },
-                        popIn: {
-                            '0%': { opacity: '0', transform: 'scale(0.8) translateY(20px)' },
-                            '100%': { opacity: '1', transform: 'scale(1) translateY(0)' },
-                        }
                     }
                 }
             }
         }
     </script>
-    
     <style>
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #fdf8f4; }
-        ::-webkit-scrollbar-thumb { background: #d19e72; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #b86a3d; }
-        
-        .hero-pattern {
-            background-image: linear-gradient(rgba(54, 28, 18, 0.7), rgba(54, 28, 18, 0.85)), url('https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1920&q=80');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }
-
-        .glass-nav {
-            background: rgba(253, 248, 244, 0.9);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(209, 158, 114, 0.2);
-        }
-        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="bg-coffee-50 text-coffee-950 font-sans antialiased overflow-x-hidden relative">
+<body class="bg-gray-50 text-gray-800 font-sans h-screen flex overflow-hidden">
 
-    <!-- Navigation -->
-    <nav class="fixed w-full z-40 glass-nav transition-all duration-300">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
-                <div class="flex items-center gap-2 cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
-                    <i class="ph ph-coffee-bean text-3xl text-coffee-600"></i>
-                    <span class="font-serif font-bold text-2xl tracking-wide text-coffee-900">Brewha</span>
-                </div>
-                
-                <div class="hidden md:flex space-x-6 items-center">
-                    <a href="#menu" class="text-coffee-800 hover:text-coffee-500 transition-colors font-medium">Menu</a>
-                    <button onclick="window.location.href='index.html'" class="text-sm border border-coffee-300 text-coffee-800 px-4 py-1.5 rounded-full hover:bg-coffee-100 transition-colors">Log out</button>
-                </div>
-
-                <div class="flex items-center gap-2 md:gap-4">
-                    <!-- Order History Button -->
-                    <button onclick="openCustomerHistory()" class="text-coffee-800 hover:text-coffee-500 transition-colors font-medium flex items-center gap-1 p-2">
-                        <i class="ph ph-clock-counter-clockwise text-2xl"></i>
-                        <span class="hidden md:inline font-bold text-sm">My Orders</span>
-                    </button>
-
-                    <!-- Cart Button -->
-                    <button onclick="toggleCart()" class="relative p-2 text-coffee-800 hover:text-coffee-500 transition-colors focus:outline-none group">
-                        <i class="ph ph-shopping-bag text-2xl group-hover:scale-110 transition-transform"></i>
-                        <span id="cart-badge" class="absolute top-0 right-0 bg-coffee-600 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center transform scale-0 transition-transform duration-300">0</span>
-                    </button>
-                </div>
-            </div>
+    <!-- Sidebar -->
+    <aside class="w-64 bg-coffee-950 text-white flex flex-col transition-all duration-300 z-20 shadow-xl hidden md:flex">
+        <div class="h-16 flex items-center px-6 border-b border-coffee-800">
+            <i class="ph ph-coffee-bean text-2xl text-coffee-400 mr-2"></i>
+            <span class="font-bold text-xl tracking-wide">Brewha Admin</span>
         </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="hero-pattern min-h-[85vh] flex items-center justify-center pt-20">
-        <div class="text-center px-4 max-w-4xl mx-auto">
-            <span class="block text-coffee-300 font-medium tracking-widest uppercase mb-4 opacity-0 animate-fade-in-up">Meals & Refreshments</span>
-            <h1 class="text-5xl md:text-7xl font-serif text-white mb-6 leading-tight opacity-0 animate-fade-in-up" style="animation-delay: 100ms;">
-                Welcome to <br/><i class="font-light text-coffee-200">Brewha</i>
-            </h1>
-            <p class="text-coffee-100 text-lg md:text-xl mb-10 max-w-2xl mx-auto opacity-0 animate-fade-in-up font-light" style="animation-delay: 200ms;">
-                Your daily brew and favorite comfort food. From hearty rice meals to refreshing iced beverages, we've got your cravings covered.
-            </p>
-            <div class="opacity-0 animate-fade-in-up" style="animation-delay: 300ms;">
-                <a href="#menu" class="inline-block bg-coffee-600 text-white px-8 py-4 rounded-full font-medium hover:bg-coffee-500 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 shadow-md">
-                    View Our Menu
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Menu Section -->
-    <section id="menu" class="py-24 bg-white relative min-h-screen">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-10">
-                <h2 class="text-4xl font-serif text-coffee-900 mb-4">The Menu</h2>
-                <div class="w-16 h-1 bg-coffee-400 mx-auto rounded-full mb-4"></div>
-                <p class="text-coffee-600">Explore our delicious selection of meals and drinks.</p>
-            </div>
-
-            <div class="mb-12 overflow-x-auto no-scrollbar pb-4">
-                <div id="category-tabs" class="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-3 w-max md:w-auto mx-auto">
-                    <!-- Tabs injected by JS -->
-                </div>
-            </div>
-
-            <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                <!-- Products injected by JS -->
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer id="about" class="bg-coffee-950 text-coffee-200 py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
-            <div>
-                <div class="flex items-center justify-center md:justify-start gap-2 mb-6">
-                    <i class="ph ph-coffee-bean text-2xl text-coffee-400"></i>
-                    <span class="font-serif font-bold text-2xl text-white">Brewha</span>
-                </div>
-                <p class="font-light leading-relaxed mb-6">Serving joy in every cup and comfort in every bite.</p>
-            </div>
-            <div>
-                <h3 class="text-white font-serif text-xl mb-6">Visit Us</h3>
-                <p class="font-light mb-2">Open Daily for Dine-in & Takeout</p>
-                <p class="font-light mb-2">Mon - Sun: 8:00 AM - 9:00 PM</p>
-            </div>
-            <div>
-                <h3 class="text-white font-serif text-xl mb-6">Connect</h3>
-                <div class="flex justify-center md:justify-start space-x-4">
-                    <a href="#" class="w-10 h-10 rounded-full bg-coffee-900 flex items-center justify-center hover:bg-coffee-600 transition-colors text-white">
-                        <i class="ph ph-instagram-logo text-xl"></i>
-                    </a>
-                    <a href="#" class="w-10 h-10 rounded-full bg-coffee-900 flex items-center justify-center hover:bg-coffee-600 transition-colors text-white">
-                        <i class="ph ph-facebook-logo text-xl"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 pt-8 border-t border-coffee-900 text-center font-light text-sm">
-            <p>&copy; 2026 Brewha. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <!-- Cart Slide-out Drawer -->
-    <div id="cart-overlay" class="fixed inset-0 bg-coffee-950/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300" onclick="toggleCart()"></div>
-    
-    <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white z-50 transform translate-x-full transition-transform duration-300 flex flex-col shadow-2xl border-l border-coffee-100">
-        <div class="px-6 py-5 border-b border-coffee-100 flex justify-between items-center bg-coffee-50">
-            <h2 class="text-2xl font-serif text-coffee-900">Your Order</h2>
-            <button onclick="toggleCart()" class="text-coffee-500 hover:text-coffee-800 transition-colors bg-white p-2 rounded-full shadow-sm hover:shadow">
-                <i class="ph ph-x text-xl"></i>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1 px-3" id="nav-links">
+            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left font-medium bg-coffee-800 text-white transition-colors">
+                <i class="ph ph-squares-four text-lg"></i> Dashboard
             </button>
-        </div>
-        
-        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4">
-            <div id="empty-cart-msg" class="h-full flex flex-col items-center justify-center text-coffee-400 space-y-4">
-                <i class="ph ph-shopping-bag-open text-5xl opacity-50"></i>
-                <p class="font-medium">Your cart is feeling a bit empty.</p>
-            </div>
-        </div>
-        
-        <div class="border-t border-coffee-100 p-6 bg-coffee-50">
-            <div class="flex justify-between text-coffee-600 mb-2 text-sm">
-                <span>Subtotal</span>
-                <span id="cart-subtotal" class="font-medium">₱0.00</span>
-            </div>
-            <div class="flex justify-between text-coffee-950 font-bold text-2xl mb-6 mt-4">
-                <span>Total</span>
-                <span id="cart-total">₱0.00</span>
-            </div>
-            <button onclick="openCheckout()" id="checkout-btn" class="w-full bg-coffee-900 text-white py-4 rounded-xl font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex justify-center items-center gap-2" disabled>
-                <span>Checkout</span>
-                <i class="ph ph-arrow-right"></i>
+            <button onclick="switchTab('orders')" id="nav-orders" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left font-medium text-coffee-200 hover:bg-coffee-900 transition-colors">
+                <div class="flex items-center gap-3"><i class="ph ph-receipt text-lg"></i> Live Orders</div>
+                <span id="nav-order-count" class="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
             </button>
-        </div>
-    </div>
-
-    <!-- NEW SIDE-BY-SIDE Product Details & Add-ons Modal -->
-    <div id="product-modal" class="fixed inset-0 bg-coffee-950/80 backdrop-blur-md z-[70] hidden flex items-end md:items-center justify-center p-0 md:p-4 opacity-0 transition-opacity duration-300">
-        <div class="absolute inset-0" onclick="closeProductModal()"></div>
-        <!-- Wider modal, flex-row on desktop -->
-        <div class="bg-white w-full md:max-w-4xl md:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[95vh] md:max-h-[85vh] transform translate-y-full md:scale-95 transition-all duration-300 relative z-10" id="pm-content">
-            
-            <!-- Left Side: Image -->
-            <div class="relative h-64 md:h-auto md:w-1/2 bg-coffee-100 flex-shrink-0">
-                <img id="pm-image" src="" class="w-full h-full object-cover" alt="">
-                <button onclick="closeProductModal()" class="absolute top-4 right-4 md:hidden bg-white/80 backdrop-blur text-coffee-900 p-2 rounded-full shadow hover:bg-white transition-colors">
-                    <i class="ph ph-x font-bold"></i>
-                </button>
+            <button onclick="switchTab('history')" id="nav-history" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left font-medium text-coffee-200 hover:bg-coffee-900 transition-colors">
+                <i class="ph ph-clock-counter-clockwise text-lg"></i> Order History
+            </button>
+            <button onclick="switchTab('inventory')" id="nav-inventory" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left font-medium text-coffee-200 hover:bg-coffee-900 transition-colors">
+                <div class="flex items-center gap-3"><i class="ph ph-package text-lg"></i> Inventory</div>
+                <span id="nav-alert-count" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
+            </button>
+            <button onclick="switchTab('products')" id="nav-products" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left font-medium text-coffee-200 hover:bg-coffee-900 transition-colors">
+                <i class="ph ph-list-dashes text-lg"></i> Product Catalog
+            </button>
+        </nav>
+        <div class="p-4 border-t border-coffee-800">
+            <div class="flex items-center justify-between mb-3">
+                 <span class="text-xs text-coffee-300 flex items-center gap-1.5"><div id="connection-status" class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div> Cloud Sync</span>
             </div>
-
-            <!-- Right Side: Content & Add-ons -->
-            <div class="flex-1 flex flex-col md:w-1/2 relative h-full">
-                <!-- Desktop Close Button -->
-                <button onclick="closeProductModal()" class="hidden md:flex absolute top-4 right-4 bg-gray-100 text-gray-500 hover:text-coffee-900 hover:bg-gray-200 p-2 rounded-full shadow-sm transition-colors z-20">
-                    <i class="ph ph-x font-bold"></i>
-                </button>
-
-                <div class="p-6 md:p-8 overflow-y-auto flex-1 no-scrollbar pb-24 md:pb-28">
-                    <div class="mb-6 md:pr-10">
-                        <div class="flex justify-between items-start gap-4 flex-col sm:flex-row">
-                            <h3 id="pm-name" class="text-3xl font-serif font-bold text-coffee-950 leading-tight"></h3>
-                            <span id="pm-price" class="text-2xl font-bold text-coffee-600 whitespace-nowrap"></span>
-                        </div>
-                        <p id="pm-desc" class="text-coffee-500 text-sm mt-2 uppercase tracking-wider font-bold"></p>
-                    </div>
-
-                    <div id="pm-addons-container" class="hidden">
-                        <div class="flex items-center gap-2 mb-4 border-b border-coffee-100 pb-2">
-                            <i class="ph ph-plus-circle text-xl text-coffee-500"></i>
-                            <h4 class="font-bold text-coffee-900">Would you like to add some extras?</h4>
-                        </div>
-                        <div id="pm-addons-list" class="space-y-3">
-                            <!-- Checkboxes injected by JS -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Fixed Bottom Action -->
-                <div class="absolute bottom-0 w-full p-4 border-t border-coffee-100 bg-white/90 backdrop-blur-md shadow-[0_-4px_15px_rgb(0,0,0,0.05)]">
-                    <button onclick="confirmAddToCart()" class="w-full bg-coffee-900 text-white py-4 rounded-xl font-medium hover:bg-coffee-800 transition-transform active:scale-95 shadow-md flex justify-between items-center px-6">
-                        <span class="flex items-center gap-2"><i class="ph ph-shopping-bag"></i> Add to Order</span>
-                        <span id="pm-btn-price" class="font-bold text-lg"></span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Customer Order History Modal -->
-    <div id="history-modal" class="fixed inset-0 bg-coffee-950/80 backdrop-blur-md z-[60] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
-        <div class="absolute inset-0" onclick="closeCustomerHistory()"></div>
-        <div class="bg-gray-50 rounded-2xl max-w-2xl w-full p-0 shadow-2xl flex flex-col h-[85vh] transform scale-95 transition-transform duration-300 relative z-10" id="history-content">
-            <div class="bg-white px-6 py-5 border-b border-gray-200 flex justify-between items-center rounded-t-2xl">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-coffee-700 flex items-center justify-center font-bold">A</div>
                 <div>
-                    <h2 class="text-2xl font-serif font-bold text-coffee-900 flex items-center gap-2">
-                        <i class="ph ph-clock-counter-clockwise text-coffee-600"></i> My Orders
-                    </h2>
-                    <p class="text-sm text-gray-500 mt-1">Track your current and past orders.</p>
-                </div>
-                <button onclick="closeCustomerHistory()" class="text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 p-2 rounded-full transition-colors">
-                    <i class="ph ph-x text-xl font-bold"></i>
-                </button>
-            </div>
-            
-            <div id="customer-orders-list" class="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
-                <!-- Orders injected here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Checkout Modal Pop-up -->
-    <div id="checkout-modal" class="fixed inset-0 bg-coffee-950/80 backdrop-blur-md z-[60] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl transform scale-95 transition-transform duration-300" id="checkout-content">
-            <div class="text-center mb-8">
-                <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="ph ph-check-circle text-4xl"></i>
-                </div>
-                <h3 class="text-3xl font-serif text-coffee-900 mb-2">Order Confirmed!</h3>
-                <p class="text-coffee-600">Your delicious order has been sent to the kitchen.</p>
-            </div>
-            <div class="bg-coffee-50 rounded-xl p-5 mb-6 text-sm text-coffee-800">
-                <div class="flex justify-between mb-3 border-b border-coffee-200 pb-2">
-                    <span>Order ID</span>
-                    <span class="font-bold text-coffee-900" id="order-number"></span>
-                </div>
-                <div class="flex justify-between mb-3">
-                    <span>Status</span>
-                    <span class="font-medium text-amber-600 flex items-center gap-1"><i class="ph ph-clock"></i> Pending</span>
-                </div>
-                <div class="flex justify-between font-bold pt-2 border-t border-coffee-200 mt-2 text-lg text-coffee-950">
-                    <span>Total</span>
-                    <span id="checkout-paid-amount"></span>
+                    <p class="text-sm font-bold">Admin User</p>
+                    <p class="text-xs text-coffee-400">Manager</p>
                 </div>
             </div>
-            <button onclick="closeCheckout()" class="w-full bg-coffee-600 text-white py-3 rounded-xl font-medium hover:bg-coffee-500 transition-colors">
-                Track Order Status
+            <button onclick="window.location.href='index.html'" class="w-full mt-4 text-sm text-coffee-400 hover:text-white flex items-center gap-2 transition-colors">
+                <i class="ph ph-sign-out"></i> Logout
             </button>
         </div>
-    </div>
+    </aside>
 
-    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        <!-- Mobile Header -->
+        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-4 md:hidden z-10">
+            <div class="flex items-center gap-2">
+                <i class="ph ph-coffee-bean text-xl text-coffee-600"></i>
+                <span class="font-bold text-lg text-coffee-900">Brewha</span>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="switchTab('orders')" class="p-2 text-gray-600 relative">
+                    <i class="ph ph-receipt text-xl"></i>
+                    <span class="absolute top-1 right-1 bg-amber-500 w-2.5 h-2.5 rounded-full"></span>
+                </button>
+                <button onclick="switchTab('inventory')" class="p-2 text-gray-600">
+                    <i class="ph ph-package text-xl"></i>
+                </button>
+                <button onclick="window.location.href='index.html'" class="p-2 text-gray-600">
+                    <i class="ph ph-sign-out text-xl"></i>
+                </button>
+            </div>
+        </header>
 
-    <!-- Firebase Connection for Customer Menu -->
+        <!-- View Container -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50" id="main-view">
+            <!-- Views injected by JS -->
+        </div>
+    </main>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- Firebase Integration -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // --- 1. FIREBASE CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyDsap0Yqqlr5ghuhXJuCbItWCQRNXKJMP8",
             authDomain: "brewha-cafe.firebaseapp.com",
@@ -337,627 +138,691 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const firestoreAppId = 'brewha-cafe';
+        const firestoreAppId = 'brewha-cafe'; 
 
+        // --- 2. AUTHENTICATION & LISTENERS ---
         let user = null;
-        let currentUserProfile = null;
+        
+        const initAuth = async () => {
+            try {
+                await signInAnonymously(auth);
+            } catch(e) { 
+                console.error("Firebase Auth Error", e); 
+                showToast("Could not connect to database. Make sure Anonymous Auth is enabled!", "warning");
+                const statusDot = document.getElementById('connection-status');
+                if (statusDot) statusDot.className = "w-2 h-2 bg-red-500 rounded-full";
+            }
+        };
+        
+        initAuth();
 
-        onAuthStateChanged(auth, async (u) => { 
-            user = u; 
+        onAuthStateChanged(auth, (u) => {
+            user = u;
+            const statusDot = document.getElementById('connection-status');
+            
             if (user) {
-                try {
-                    // Fetch real Student profile from Firebase if they logged in
-                    const userDoc = await getDoc(doc(db, 'users', user.uid));
-                    if (userDoc.exists()) currentUserProfile = userDoc.data();
-                } catch(e) {
-                    console.error("Error fetching profile", e);
-                }
-
-                // Listen to Catalog Availability from Admin
-                const availRef = doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'settings', 'availability');
-                onSnapshot(availRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        window.unavailableIds = docSnap.data().ids || [];
-                    } else {
-                        window.unavailableIds = [];
-                    }
-                    if (window.renderProducts) window.renderProducts();
-                });
-
-                // Listen to My Orders
-                const ordersRef = collection(db, 'artifacts', firestoreAppId, 'public', 'data', 'orders');
-                onSnapshot(ordersRef, (snapshot) => {
-                    const allOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    allOrders.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)); 
-                    
-                    // Filter only orders placed by this specific UID
-                    window.customerOrders = allOrders.filter(o => o.uid === user.uid);
-                    if (typeof window.renderCustomerHistory === 'function') window.renderCustomerHistory();
-                });
+                if (statusDot) statusDot.className = "w-2 h-2 bg-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.8)]";
+                setupRealtimeListeners();
+            } else {
+                if (statusDot) statusDot.className = "w-2 h-2 bg-red-500 rounded-full";
             }
         });
 
-        window.submitOrderToFirebase = async function(orderTotal, cartItems) {
-            if (!user) return null;
+        // --- Data Models / Local State ---
+        let inventoryData = [];
+        let liveOrders = [];
+        let completedOrders = [];
+        let unavailableIds = [];
+        let currentTab = 'dashboard';
+        let stats = { revenueToday: 0 };
 
-            const orderNumber = 'BRW-' + Math.floor(Math.random() * 90000 + 10000);
+        // Default Seeding Data
+        const defaultInventoryData = [
+            { id: 'i1', category: 'Coffee', item: 'Coffee Beans', stock: 2.0, unit: 'Kg', threshold: 1.0 },
+            { id: 'i2', category: 'Coffee', item: 'Fresh Milk', stock: 5.0, unit: 'L', threshold: 2.0 },
+            { id: 'i3', category: 'Coffee', item: 'Condensed Milk', stock: 5, unit: 'Cans', threshold: 2 },
+            { id: 'i4', category: 'Coffee', item: 'Lemon Extract Juice', stock: 500, unit: 'ml', threshold: 200 },
+            { id: 'i5', category: 'Non-Coffee', item: 'Chocolate Syrup', stock: 2.0, unit: 'L', threshold: 1.0 },
+            { id: 'i6', category: 'Non-Coffee', item: 'Matcha Powder', stock: 200, unit: 'g', threshold: 100 },
+            { id: 'i7', category: 'Soda/Essential', item: 'Coke', stock: 20, unit: 'Bottles', threshold: 10 },
+            { id: 'i8', category: 'Soda/Essential', item: 'Ice', stock: 10.0, unit: 'Kg', threshold: 5.0 },
+            { id: 'i9', category: 'Meals', item: 'Rice', stock: 10.0, unit: 'Kg', threshold: 5.0 },
+            { id: 'i10', category: 'Meals', item: 'Pork', stock: 9.0, unit: 'Kg', threshold: 5.0 },
+            { id: 'i11', category: 'Meals', item: 'Siomai', stock: 100, unit: 'pcs', threshold: 40 },
+            { id: 'i12', category: 'Meals', item: 'Lumpia', stock: 50, unit: 'pcs', threshold: 40 },
+            { id: 'i13', category: 'Packaging', item: 'Cold Cups', stock: 150, unit: 'pcs', threshold: 100 },
+            { id: 'i14', category: 'Packaging', item: 'Hot Cups', stock: 150, unit: 'pcs', threshold: 100 },
+            { id: 'i15', category: 'Packaging', item: 'Round Paper Bowls', stock: 300, unit: 'pcs', threshold: 100 }
+        ];
+
+        const productsList = [
+            { id: 1, name: "Fried Egg", price: 15.00, category: "A La Carte" },
+            { id: 2, name: "Siomai (4 pcs)", price: 25.00, category: "A La Carte" },
+            { id: 3, name: "Lumpia Shanghai", price: 10.00, category: "A La Carte" },
+            { id: 4, name: "Chicken Pastil", price: 40.00, category: "A La Carte" },
+            { id: 5, name: "Adobo", price: 50.00, category: "A La Carte" },
+            { id: 6, name: "Rice", price: 15.00, category: "A La Carte" },
+            { id: 7, name: "Dinuguan", price: 50.00, category: "A La Carte" },
+            { id: 8, name: "Puto", price: 10.00, category: "A La Carte" },
+            { id: 9, name: "Hungarian", price: 60.00, category: "Rice Meals" },
+            { id: 10, name: "Pork Katsu", price: 60.00, category: "Rice Meals" },
+            { id: 11, name: "Chicken Adobo", price: 60.00, category: "Rice Meals" },
+            { id: 12, name: "Sisig", price: 60.00, category: "Rice Meals" },
+            { id: 13, name: "Chicken Pastil", price: 50.00, category: "Rice Meals" },
+            { id: 14, name: "Lumpia Shanghai (3 pcs)", price: 50.00, category: "Rice Meals" },
+            { id: 15, name: "Hotdog (2 pcs)", price: 40.00, category: "Rice Meals" },
+            { id: 16, name: "Siomai (4 pcs) Meal", price: 35.00, category: "Rice Meals" },
+            { id: 17, name: "Brewed Coffee", price: 25.00, category: "Hot Drinks" },
+            { id: 18, name: "Café Latte", price: 35.00, category: "Hot Drinks" },
+            { id: 19, name: "Hot Chocolate", price: 35.00, category: "Hot Drinks" },
+            { id: 20, name: "Vietnamese Coffee", price: 39.00, category: "Iced Coffee" },
+            { id: 21, name: "Latte", price: 39.00, category: "Iced Coffee" },
+            { id: 22, name: "Greek Frappe", price: 39.00, category: "Iced Coffee" },
+            { id: 23, name: "Café Mocha", price: 39.00, category: "Iced Coffee" },
+            { id: 24, name: "Honey-Lemon", price: 39.00, category: "Iced Americano" },
+            { id: 25, name: "Lychee-Americano", price: 39.00, category: "Iced Americano" },
+            { id: 26, name: "Orange-Americano", price: 39.00, category: "Iced Americano" },
+            { id: 27, name: "Coconut-Americano", price: 39.00, category: "Iced Americano" },
+            { id: 28, name: "Iced Chocolate", price: 39.00, category: "Non-Coffee" },
+            { id: 29, name: "Choco Float", price: 45.00, category: "Non-Coffee" },
+            { id: 30, name: "Milky Strawberry", price: 39.00, category: "Non-Coffee" },
+            { id: 31, name: "Matcha Dalgona", price: 39.00, category: "Non-Coffee" },
+            { id: 32, name: "Strawberry", price: 35.00, category: "Fruit Soda" },
+            { id: 33, name: "Four Seasons", price: 35.00, category: "Fruit Soda" },
+            { id: 34, name: "Blue Lemonade", price: 35.00, category: "Fruit Soda" },
+            { id: 35, name: "Lychee", price: 35.00, category: "Fruit Soda" },
+            { id: 36, name: "Blueberry", price: 35.00, category: "Fruit Soda" },
+            { id: 37, name: "Green Apple", price: 35.00, category: "Fruit Soda" },
+            { id: 38, name: "Orange", price: 35.00, category: "Fruit Soda" },
+            { id: 39, name: "Coke Float", price: 39.00, category: "Soda Float" },
+            { id: 40, name: "Strawberry Float", price: 39.00, category: "Soda Float" },
+            { id: 41, name: "Blueberry Float", price: 39.00, category: "Soda Float" }
+        ];
+
+        function setupRealtimeListeners() {
+            if(!user) return;
             
-            const formattedItems = cartItems.map(item => {
-                let name = `${item.quantity}x ${item.name}`;
-                if (item.addons && item.addons.length > 0) {
-                    name += ` (+ ${item.addons.map(a => a.name).join(', ')})`;
+            // Listen to Inventory
+            const invRef = collection(db, 'artifacts', firestoreAppId, 'public', 'data', 'inventory');
+            onSnapshot(invRef, (snapshot) => {
+                if (snapshot.empty && inventoryData.length === 0) {
+                    defaultInventoryData.forEach(item => setDoc(doc(invRef, item.id), item));
+                } else {
+                    inventoryData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    // Attach global so isAvailable functions work
+                    window.inventoryData = inventoryData; 
+                    if (currentTab === 'inventory' || currentTab === 'dashboard' || currentTab === 'products') switchTab(currentTab);
+                    checkInventoryLevels(false);
                 }
-                return name;
+            }, (error) => console.error("Error with Inventory listener", error));
+
+            // Listen to Orders
+            const ordersRef = collection(db, 'artifacts', firestoreAppId, 'public', 'data', 'orders');
+            onSnapshot(ordersRef, (snapshot) => {
+                const allOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                allOrders.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)); 
+                
+                liveOrders = allOrders.filter(o => o.status !== 'Completed');
+                completedOrders = allOrders.filter(o => o.status === 'Completed');
+                
+                const todayStr = new Date().toLocaleDateString();
+                stats.revenueToday = completedOrders
+                    .filter(o => new Date(o.completedAt || o.createdAt).toLocaleDateString() === todayStr)
+                    .reduce((sum, order) => sum + order.total, 0);
+
+                if (currentTab === 'orders' || currentTab === 'history' || currentTab === 'dashboard') switchTab(currentTab);
+                updateBadges();
+            }, (error) => console.error("Error with Orders listener", error));
+
+            // Listen to Catalog Availability
+            const availRef = doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'settings', 'availability');
+            onSnapshot(availRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    unavailableIds = docSnap.data().ids || [];
+                } else {
+                    unavailableIds = [];
+                }
+                window.unavailableIds = unavailableIds;
+                if (currentTab === 'products' || currentTab === 'dashboard') switchTab(currentTab);
             });
+        }
 
-            // Use Real Name and save UID so they can track it securely
-            const customerName = currentUserProfile && currentUserProfile.fullName ? currentUserProfile.fullName : 'Online Guest';
+        // --- Recipe Parsing for Auto-Deductions ---
+        function parseOrderItem(itemStr) {
+            const match = itemStr.match(/^(\d+)x\s+(.*?)(?:\s+\(\+\s+(.*?)\))?$/);
+            if (match) {
+                return {
+                    qty: parseInt(match[1], 10),
+                    name: match[2].trim(),
+                    addons: match[3] ? match[3].split(',').map(a => a.trim()) : []
+                };
+            }
+            return null;
+        }
 
+        function getDeductions(name) {
+            const recipeMap = {
+                "Sisig": [{item: "Rice", amount: 0.2}, {item: "Pork", amount: 0.15}, {item: "Round Paper Bowls", amount: 1}],
+                "Hungarian": [{item: "Rice", amount: 0.2}, {item: "Round Paper Bowls", amount: 1}],
+                "Pork Katsu": [{item: "Rice", amount: 0.2}, {item: "Pork", amount: 0.15}, {item: "Round Paper Bowls", amount: 1}],
+                "Chicken Adobo": [{item: "Rice", amount: 0.2}, {item: "Round Paper Bowls", amount: 1}],
+                "Chicken Pastil": [{item: "Rice", amount: 0.2}, {item: "Round Paper Bowls", amount: 1}],
+                "Lumpia Shanghai (3 pcs)": [{item: "Rice", amount: 0.2}, {item: "Lumpia", amount: 3}, {item: "Round Paper Bowls", amount: 1}],
+                "Hotdog (2 pcs)": [{item: "Rice", amount: 0.2}, {item: "Round Paper Bowls", amount: 1}],
+                "Siomai (4 pcs) Meal": [{item: "Rice", amount: 0.2}, {item: "Siomai", amount: 4}, {item: "Round Paper Bowls", amount: 1}],
+                "Siomai (4 pcs)": [{item: "Siomai", amount: 4}, {item: "Round Paper Bowls", amount: 1}],
+                "Lumpia Shanghai": [{item: "Lumpia", amount: 3}, {item: "Round Paper Bowls", amount: 1}],
+                "Adobo": [{item: "Round Paper Bowls", amount: 1}],
+                "Dinuguan": [{item: "Round Paper Bowls", amount: 1}],
+                "Rice": [{item: "Rice", amount: 0.2}],
+                
+                "Brewed Coffee": [{item: "Coffee Beans", amount: 0.015}, {item: "Hot Cups", amount: 1}],
+                "Café Latte": [{item: "Coffee Beans", amount: 0.015}, {item: "Fresh Milk", amount: 0.05}, {item: "Hot Cups", amount: 1}],
+                "Hot Chocolate": [{item: "Chocolate Syrup", amount: 0.03}, {item: "Hot Cups", amount: 1}],
+                
+                "Vietnamese Coffee": [{item: "Coffee Beans", amount: 0.015}, {item: "Condensed Milk", amount: 0.05}, {item: "Ice", amount: 0.07}, {item: "Cold Cups", amount: 1}],
+                "Latte": [{item: "Coffee Beans", amount: 0.015}, {item: "Fresh Milk", amount: 0.05}, {item: "Ice", amount: 0.07}, {item: "Cold Cups", amount: 1}],
+                "Greek Frappe": [{item: "Coffee Beans", amount: 0.015}, {item: "Ice", amount: 0.07}, {item: "Cold Cups", amount: 1}],
+                "Café Mocha": [{item: "Coffee Beans", amount: 0.015}, {item: "Chocolate Syrup", amount: 0.03}, {item: "Ice", amount: 0.07}, {item: "Cold Cups", amount: 1}],
+                
+                "Matcha Dalgona": [{item: "Matcha Powder", amount: 15}, {item: "Fresh Milk", amount: 0.05}, {item: "Ice", amount: 0.07}, {item: "Cold Cups", amount: 1}],
+                "Coke Float": [{item: "Coke", amount: 1}, {item: "Ice", amount: 0.07}, {item: "Cold Cups", amount: 1}],
+                "Strawberry": [{item: "Ice", amount: 0.07}, {item: "Cold Cups", amount: 1}],
+
+                // Addons 
+                "Extra Espresso / Strong Shot": [{item: "Coffee Beans", amount: 0.015}],
+                "Extra Espresso": [{item: "Coffee Beans", amount: 0.015}],
+                "Fresh Milk": [{item: "Fresh Milk", amount: 0.03}],
+                "Condensed Milk": [{item: "Condensed Milk", amount: 0.03}],
+                "Lemon Extract Juice": [{item: "Lemon Extract Juice", amount: 15}],
+                "Lemon Juice": [{item: "Lemon Extract Juice", amount: 15}],
+                "Chocolate Syrup": [{item: "Chocolate Syrup", amount: 0.015}],
+                "Matcha Powder": [{item: "Matcha Powder", amount: 10}],
+                "Extra Rice": [{item: "Rice", amount: 0.2}],
+                "Extra Siomai": [{item: "Siomai", amount: 2}],
+                "Extra Lumpia": [{item: "Lumpia", amount: 2}],
+                "Extra Lumpia Shanghai": [{item: "Lumpia", amount: 2}]
+            };
+
+            if (recipeMap[name]) return recipeMap[name];
+            
+            let genericDeductions = [];
+            const lowName = name.toLowerCase();
+            if (lowName.includes("coffee") || lowName.includes("americano") || lowName.includes("latte")) genericDeductions.push({item: "Coffee Beans", amount: 0.015});
+            if (lowName.includes("iced") || lowName.includes("float") || lowName.includes("soda")) genericDeductions.push({item: "Ice", amount: 0.07}, {item: "Cold Cups", amount: 1});
+            if (lowName.includes("hot")) genericDeductions.push({item: "Hot Cups", amount: 1});
+            return genericDeductions;
+        }
+
+        window.isAvailable = function(id, name) {
+            if (window.unavailableIds && window.unavailableIds.includes(id)) return false;
+            if (!window.inventoryData || window.inventoryData.length === 0) return true;
+
+            const deductions = getDeductions(name);
+            for (let d of deductions) {
+                const invItem = window.inventoryData.find(i => i.item === d.item);
+                if (invItem && invItem.stock < d.amount) return false; 
+            }
+            return true;
+        };
+
+        // --- Cloud Actions ---
+        window.switchTab = switchTab;
+        
+        window.updateOrderStatus = async function(id, newStatus) {
+            if (!user) return;
+            const orderDoc = doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'orders', id);
+            await updateDoc(orderDoc, { status: newStatus });
+        };
+        
+        window.markOrderDone = async function(id) {
+            if (!user) return;
+            const orderDoc = doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'orders', id);
+            const order = liveOrders.find(o => o.id === id);
+            
+            // Deduct Ingredients upon completion
+            if (order && !order.inventoryDeducted) {
+                for (const itemStr of order.items) {
+                    const parsed = parseOrderItem(itemStr);
+                    if (parsed) {
+                        const { qty, name, addons } = parsed;
+                        
+                        const prodDeductions = getDeductions(name);
+                        for (const d of prodDeductions) await deductInventory(d.item, d.amount * qty);
+
+                        for (const addon of addons) {
+                            const addonDeductions = getDeductions(addon);
+                            for (const d of addonDeductions) await deductInventory(d.item, d.amount * qty);
+                        }
+                    }
+                }
+                await updateDoc(orderDoc, { status: 'Completed', completedAt: Date.now(), inventoryDeducted: true });
+                showToast('Order Completed & Inventory Deducted!', 'success');
+            } else {
+                await updateDoc(orderDoc, { status: 'Completed', completedAt: Date.now() });
+                showToast('Order marked as Completed!', 'success');
+            }
+        };
+
+        window.toggleProductAvailability = async function(id) {
+            if (!user) return;
+            let newIds = [...unavailableIds];
+            if (newIds.includes(id)) {
+                newIds = newIds.filter(i => i !== id);
+            } else {
+                newIds.push(id);
+            }
+            await setDoc(doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'settings', 'availability'), { ids: newIds });
+            showToast(newIds.includes(id) ? 'Marked as Unavailable manually' : 'Marked as Available', 'success');
+        };
+        
+        window.simulateOnlineOrder = async function() {
+            if (!user) { showToast("Not connected to database. Check Firebase Auth.", "warning"); return; }
+            
+            const newId = 'ORD-' + Math.floor(Math.random() * 9000 + 1000);
             const newOrder = {
-                uid: user.uid,
-                source: 'Online',
-                customer: customerName, 
-                items: formattedItems,
-                total: orderTotal,
-                status: 'Pending',
-                time: 'Just now',
+                source: 'Online', customer: 'Simulation Guest', 
+                items: ['1x Vietnamese Coffee', '2x Lumpia Shanghai (+ Extra Lumpia)'], 
+                total: 79.00, status: 'Pending', time: 'Just now',
                 createdAt: Date.now()
             };
 
-            try {
-                await setDoc(doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'orders', orderNumber), newOrder);
-                return orderNumber;
-            } catch(e) {
-                console.error("Error saving order:", e);
-                return orderNumber;
+            await setDoc(doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'orders', newId), newOrder);
+            showToast(`Simulated Order received: ${newId}`, 'info');
+        };
+        
+        window.restockItem = async function(id) {
+            if (!user) return;
+            const item = inventoryData.find(i => i.id === id);
+            if(item) {
+                const newStock = item.stock + (item.threshold * 5);
+                await updateDoc(doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'inventory', item.id), { stock: newStock });
+                showToast(`Restocked ${item.item}. New level: ${newStock} ${item.unit}`, 'success');
             }
         };
-    </script>
 
-    <script>
-        const rawMenu = [
-            { id: 1, name: "Fried Egg", price: 15.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1525916801717-94ec18db35b1?auto=format&fit=crop&w=600&q=80" },
-            { id: 2, name: "Siomai (4 pcs)", price: 25.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=600&q=80" },
-            { id: 3, name: "Lumpia Shanghai", price: 10.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=600&q=80" },
-            { id: 4, name: "Chicken Pastil", price: 40.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=600&q=80" },
-            { id: 5, name: "Adobo", price: 50.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1598515322629-943015f6ceee?auto=format&fit=crop&w=600&q=80" },
-            { id: 6, name: "Rice", price: 15.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=600&q=80" },
-            { id: 7, name: "Dinuguan", price: 50.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1548943487-a2e4e43b4850?auto=format&fit=crop&w=600&q=80" },
-            { id: 8, name: "Puto", price: 10.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1600289031464-74d374b64991?auto=format&fit=crop&w=600&q=80" },
-            { id: 9, name: "Hungarian", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=600&q=80" },
-            { id: 10, name: "Pork Katsu", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1578160112054-954a67602b88?auto=format&fit=crop&w=600&q=80" },
-            { id: 11, name: "Chicken Adobo", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=600&q=80" },
-            { id: 12, name: "Sisig", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1627308595229-7830f5c95f9d?auto=format&fit=crop&w=600&q=80" },
-            { id: 13, name: "Chicken Pastil", price: 50.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=600&q=80" },
-            { id: 14, name: "Lumpia Shanghai (3 pcs)", price: 50.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=600&q=80" },
-            { id: 15, name: "Hotdog (2 pcs)", price: 40.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1541214113241-21578d2d9b62?auto=format&fit=crop&w=600&q=80" },
-            { id: 16, name: "Siomai (4 pcs) Meal", price: 35.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=600&q=80" },
-            { id: 17, name: "Brewed Coffee", price: 25.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80" },
-            { id: 18, name: "Café Latte", price: 35.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?auto=format&fit=crop&w=600&q=80" },
-            { id: 19, name: "Hot Chocolate", price: 35.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?auto=format&fit=crop&w=600&q=80" },
-            { id: 20, name: "Vietnamese Coffee", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80" },
-            { id: 21, name: "Latte", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=600&q=80" },
-            { id: 22, name: "Greek Frappe", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=600&q=80" },
-            { id: 23, name: "Café Mocha", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=600&q=80" },
-            { id: 24, name: "Honey-Lemon", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1527661591475-527312dd65f5?auto=format&fit=crop&w=600&q=80" },
-            { id: 25, name: "Lychee-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=600&q=80" },
-            { id: 26, name: "Orange-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1600271886742-f049cd451b08?auto=format&fit=crop&w=600&q=80" },
-            { id: 27, name: "Coconut-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1595981267035-7b04d9b4b005?auto=format&fit=crop&w=600&q=80" },
-            { id: 28, name: "Iced Chocolate", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1546548970-71785318a306?auto=format&fit=crop&w=600&q=80" },
-            { id: 29, name: "Choco Float", price: 45.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1553177595-4de2bb0842b9?auto=format&fit=crop&w=600&q=80" },
-            { id: 30, name: "Milky Strawberry", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1553787762-b5f528158c9c?auto=format&fit=crop&w=600&q=80" },
-            { id: 31, name: "Matcha Dalgona", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&w=600&q=80" },
-            { id: 32, name: "Strawberry", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80" },
-            { id: 33, name: "Four Seasons", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80" },
-            { id: 34, name: "Blue Lemonade", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=600&q=80" },
-            { id: 35, name: "Lychee", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=600&q=80" },
-            { id: 36, name: "Blueberry", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1597403491447-3ab08f8e44dc?auto=format&fit=crop&w=600&q=80" },
-            { id: 37, name: "Green Apple", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80" },
-            { id: 38, name: "Orange", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1600271886742-f049cd451b08?auto=format&fit=crop&w=600&q=80" },
-            { id: 39, name: "Coke Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1628873041695-095562095ce9?auto=format&fit=crop&w=600&q=80" },
-            { id: 40, name: "Strawberry Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&w=600&q=80" },
-            { id: 41, name: "Blueberry Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1597403491447-3ab08f8e44dc?auto=format&fit=crop&w=600&q=80" }
-        ];
+        async function deductInventory(itemName, amount) {
+            const item = inventoryData.find(i => i.item === itemName);
+            if(item) {
+                const newStock = Math.max(0, parseFloat((item.stock - amount).toFixed(3)));
+                await updateDoc(doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'inventory', item.id), { stock: newStock });
+                if (newStock <= item.threshold && item.stock > item.threshold) {
+                    showToast(`Alert: ${item.item} is running low! (${newStock} ${item.unit} left)`, 'warning');
+                }
+            }
+        }
 
-        const products = rawMenu;
-
-        const addOnsData = {
-            coffee: [
-                { id: 'c1', name: 'Extra Espresso / Strong Shot', price: 15 },
-                { id: 'c2', name: 'Fresh Milk', price: 10 },
-                { id: 'c3', name: 'Condensed Milk', price: 10 },
-                { id: 'c4', name: 'Honey', price: 10 },
-                { id: 'c5', name: 'Lemon Extract Juice', price: 10 },
-                { id: 'c6', name: 'Whipped Cream', price: 10 },
-                { id: 'c7', name: 'Caramel Syrup', price: 10 },
-                { id: 'c8', name: 'Vanilla Syrup', price: 10 },
-                { id: 'c9', name: 'Hazelnut Syrup', price: 10 }
-            ],
-            nonCoffee: [
-                { id: 'nc1', name: 'Chocolate Syrup', price: 10 },
-                { id: 'nc2', name: 'Strawberry Puree', price: 15 },
-                { id: 'nc3', name: 'Matcha Powder', price: 15 },
-                { id: 'nc4', name: 'Vanilla Ice Cream (Float)', price: 20 },
-                { id: 'nc5', name: 'Coffee Jelly', price: 10 },
-                { id: 'nc6', name: 'Pearl / Boba', price: 10 },
-                { id: 'nc7', name: 'Cream Cheese Foam', price: 15 },
-                { id: 'nc8', name: 'Extra Chocolate Drizzle', price: 10 }
-            ],
-            fruitSoda: [
-                { id: 'fs1', name: 'Strawberry Syrup', price: 10 },
-                { id: 'fs2', name: 'Four Seasons Syrup', price: 10 },
-                { id: 'fs3', name: 'Blueberry Syrup', price: 10 },
-                { id: 'fs4', name: 'Lychee Syrup', price: 10 },
-                { id: 'fs5', name: 'Green Apple Syrup', price: 10 },
-                { id: 'fs6', name: 'Orange Syrup', price: 10 },
-                { id: 'fs7', name: 'Lemon Slices', price: 10 },
-                { id: 'fs8', name: 'Popping Boba', price: 15 }
-            ],
-            food: [
-                { id: 'f1', name: 'Extra Rice', price: 15 },
-                { id: 'f2', name: 'Fried Egg', price: 15 },
-                { id: 'f3', name: 'Extra Gravy', price: 10 },
-                { id: 'f4', name: 'Cheese Sauce', price: 15 },
-                { id: 'f5', name: 'Extra Siomai', price: 20 },
-                { id: 'f6', name: 'Extra Lumpia Shanghai', price: 10 },
-                { id: 'f7', name: 'Extra Hotdog', price: 15 },
-                { id: 'f8', name: 'Extra Adobo Topping', price: 20 },
-                { id: 'f9', name: 'Extra Sisig Topping', price: 20 },
-                { id: 'f10', name: 'Chili Garlic', price: 10 },
-                { id: 'f11', name: 'Atsara', price: 10 }
-            ]
-        };
-
-        const categories = ["All", "Rice Meals", "A La Carte", "Hot Drinks", "Iced Coffee", "Iced Americano", "Non-Coffee", "Fruit Soda", "Soda Float"];
-        
-        let cart = [];
-        let isCartOpen = false;
-        let activeCategory = "All";
-        let currentModalProduct = null;
-        let currentSelectedAddons = [];
-        
-        window.unavailableIds = [];
-        window.customerOrders = []; // Populated from cloud
-
-        document.addEventListener('DOMContentLoaded', () => {
-            renderTabs();
-            renderProducts();
-            
-            window.addEventListener('scroll', () => {
-                const nav = document.querySelector('nav');
-                if (window.scrollY > 50) nav.classList.add('shadow-md');
-                else nav.classList.remove('shadow-md');
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('#nav-links button').forEach(btn => {
+                btn.classList.remove('bg-coffee-800', 'text-white');
+                btn.classList.add('text-coffee-200');
             });
-        });
+            const activeBtn = document.getElementById(`nav-${tab}`);
+            if(activeBtn) {
+                activeBtn.classList.remove('text-coffee-200');
+                activeBtn.classList.add('bg-coffee-800', 'text-white');
+            }
 
-        function renderTabs() {
-            const tabsContainer = document.getElementById('category-tabs');
-            tabsContainer.innerHTML = '';
+            const viewContainer = document.getElementById('main-view');
+            viewContainer.innerHTML = '';
 
-            categories.forEach(cat => {
-                const btn = document.createElement('button');
-                const isActive = cat === activeCategory;
-                
-                btn.className = `px-6 py-2.5 rounded-full font-medium text-sm whitespace-nowrap transition-all duration-300 shadow-sm ${
-                    isActive 
-                    ? 'bg-coffee-900 text-white shadow-md' 
-                    : 'bg-white text-coffee-700 hover:bg-coffee-100 border border-coffee-200'
-                }`;
-                btn.textContent = cat;
-                btn.onclick = () => setCategory(cat);
-                
-                tabsContainer.appendChild(btn);
-            });
+            if(tab === 'dashboard') viewContainer.innerHTML = getDashboardHTML();
+            else if(tab === 'orders') viewContainer.innerHTML = getOrdersHTML();
+            else if(tab === 'history') viewContainer.innerHTML = getHistoryHTML();
+            else if(tab === 'inventory') viewContainer.innerHTML = getInventoryHTML();
+            else if(tab === 'products') viewContainer.innerHTML = getProductsHTML();
+
+            updateBadges();
         }
 
-        function setCategory(category) {
-            activeCategory = category;
-            renderTabs();
-            renderProducts();
-        }
-
-        window.renderProducts = function() {
-            const grid = document.getElementById('product-grid');
-            grid.innerHTML = '';
-
-            const filteredProducts = activeCategory === "All" 
-                ? products 
-                : products.filter(p => p.category === activeCategory);
-
-            filteredProducts.forEach((product, index) => {
-                const isUnavailable = window.unavailableIds.includes(product.id);
-                let tagColor = 'bg-white/90 text-coffee-900';
-                
-                if(product.category.includes('Coffee') || product.category.includes('Hot')) tagColor = 'bg-coffee-900/90 text-white';
-                else if(product.category.includes('Soda')) tagColor = 'bg-amber-500/90 text-white';
-
-                const card = document.createElement('div');
-                card.className = `bg-white rounded-2xl overflow-hidden border border-coffee-100 shadow-sm transition-all duration-300 flex flex-col opacity-0 animate-pop-in ${isUnavailable ? 'opacity-60 grayscale' : 'hover:shadow-xl'}`;
-                card.style.animationDelay = `${(index % 10) * 50}ms`;
-
-                card.innerHTML = `
-                    <div class="relative h-48 overflow-hidden bg-coffee-50 ${isUnavailable ? 'cursor-not-allowed' : 'cursor-pointer group'}" ${!isUnavailable ? `onclick="openProductModal(${product.id})"` : ''}>
-                        <span class="absolute top-3 left-3 ${tagColor} backdrop-blur text-[10px] uppercase tracking-wider font-bold px-3 py-1 rounded-full shadow-sm z-10">${product.category}</span>
-                        ${isUnavailable ? '<div class="absolute inset-0 bg-black/40 flex items-center justify-center z-20"><span class="bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded uppercase tracking-wider shadow-lg">Sold Out</span></div>' : '<div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500 z-0"></div>'}
-                        <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover ${isUnavailable ? '' : 'transform group-hover:scale-110 transition-transform duration-700 ease-in-out'}" loading="lazy">
-                    </div>
-                    <div class="p-5 flex flex-col flex-grow">
-                        <div class="flex justify-between items-start mb-4 gap-2 ${isUnavailable ? 'cursor-not-allowed' : 'cursor-pointer'}" ${!isUnavailable ? `onclick="openProductModal(${product.id})"` : ''}>
-                            <h3 class="text-lg font-serif font-bold text-coffee-950 leading-tight">${product.name}</h3>
-                            <span class="text-lg font-bold text-coffee-600 whitespace-nowrap">₱${product.price.toFixed(2)}</span>
-                        </div>
-                        <div class="mt-auto">
-                            <button ${isUnavailable ? 'disabled' : `onclick="openProductModal(${product.id})"`} class="w-full ${isUnavailable ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-coffee-50 text-coffee-800 hover:bg-coffee-900 hover:text-white border-coffee-200'} py-2.5 rounded-xl text-sm font-medium transition-colors duration-300 flex justify-center items-center gap-2 border">
-                                <i class="ph ph-${isUnavailable ? 'prohibit' : 'plus'} font-bold"></i>
-                                <span>${isUnavailable ? 'Unavailable' : 'Add to Order'}</span>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        function getAddonsForCategory(category) {
-            if (["Hot Drinks", "Iced Coffee", "Iced Americano"].includes(category)) return addOnsData.coffee;
-            if (["Non-Coffee", "Soda Float"].includes(category)) return addOnsData.nonCoffee;
-            if (["Fruit Soda"].includes(category)) return addOnsData.fruitSoda;
-            if (["Rice Meals", "A La Carte"].includes(category)) return addOnsData.food;
-            return [];
-        }
-
-        window.openProductModal = function(productId) {
-            currentModalProduct = products.find(p => p.id === productId);
-            if (!currentModalProduct) return;
-            currentSelectedAddons = [];
-
-            const modal = document.getElementById('product-modal');
-            const content = document.getElementById('pm-content');
+        // --- View Generators ---
+        function getDashboardHTML() {
+            const lowStockItems = inventoryData.filter(i => i.stock <= i.threshold);
             
-            document.getElementById('pm-image').src = currentModalProduct.image;
-            document.getElementById('pm-name').textContent = currentModalProduct.name;
-            document.getElementById('pm-desc').textContent = currentModalProduct.category;
-            document.getElementById('pm-price').textContent = `₱${currentModalProduct.price.toFixed(2)}`;
-            
-            const addonsContainer = document.getElementById('pm-addons-container');
-            const addonsList = getAddonsForCategory(currentModalProduct.category);
-            
-            if (addonsList.length > 0) {
-                addonsContainer.classList.remove('hidden');
-                const listEl = document.getElementById('pm-addons-list');
-                listEl.innerHTML = '';
-                addonsList.forEach(addon => {
-                    listEl.innerHTML += `
-                        <label class="flex items-center justify-between p-3 border border-coffee-100 rounded-xl hover:bg-coffee-50 hover:border-coffee-300 cursor-pointer transition-all">
-                            <div class="flex items-center gap-3">
-                                <input type="checkbox" class="w-5 h-5 text-coffee-600 rounded border-coffee-300 focus:ring-coffee-500 accent-coffee-600" value="${addon.id}" onchange="toggleAddon('${addon.id}', '${addon.name}', ${addon.price}, this.checked)">
-                                <span class="text-sm font-medium text-coffee-900">${addon.name}</span>
+            let alertsHtml = lowStockItems.length === 0 
+                ? `<div class="text-gray-500 text-sm py-4 text-center">All inventory levels are good!</div>`
+                : lowStockItems.map(i => `
+                    <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg border border-red-100 mb-2">
+                        <div class="flex items-center gap-3">
+                            <i class="ph ph-warning-circle text-red-500 text-xl"></i>
+                            <div>
+                                <p class="text-sm font-bold text-gray-800">${i.item}</p>
+                                <p class="text-xs text-red-600">Only ${i.stock} ${i.unit} left (Threshold: ${i.threshold})</p>
                             </div>
-                            <span class="text-sm text-coffee-600 font-bold">+₱${addon.price.toFixed(2)}</span>
-                        </label>
-                    `;
-                });
-            } else {
-                addonsContainer.classList.add('hidden');
-            }
+                        </div>
+                        <button onclick="switchTab('inventory')" class="text-xs font-bold text-red-600 bg-white px-3 py-1 rounded border border-red-200 hover:bg-red-50">Review</button>
+                    </div>
+                `).join('');
 
-            updateModalTotal();
-
-            modal.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                modal.classList.remove('opacity-0');
-                content.classList.remove('translate-y-full', 'md:scale-95');
-                content.classList.add('translate-y-0', 'md:scale-100');
-            });
-            document.body.style.overflow = 'hidden';
-        };
-
-        window.closeProductModal = function() {
-            const modal = document.getElementById('product-modal');
-            const content = document.getElementById('pm-content');
-            
-            modal.classList.add('opacity-0');
-            content.classList.remove('translate-y-0', 'md:scale-100');
-            content.classList.add('translate-y-full', 'md:scale-95');
-            
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                if(!isCartOpen) document.body.style.overflow = '';
-            }, 300);
-        };
-
-        window.toggleAddon = function(id, name, price, isChecked) {
-            if (isChecked) {
-                currentSelectedAddons.push({ id, name, price });
-            } else {
-                currentSelectedAddons = currentSelectedAddons.filter(a => a.id !== id);
-            }
-            updateModalTotal();
-        };
-
-        function updateModalTotal() {
-            const addonsTotal = currentSelectedAddons.reduce((sum, a) => sum + a.price, 0);
-            const total = currentModalProduct.price + addonsTotal;
-            document.getElementById('pm-btn-price').textContent = `₱${total.toFixed(2)}`;
-        }
-
-        window.confirmAddToCart = function() {
-            if (!currentModalProduct) return;
-
-            const addonIds = currentSelectedAddons.map(a => a.id).sort().join('-');
-            const cartItemId = `${currentModalProduct.id}-${addonIds}`;
-            const addonsTotal = currentSelectedAddons.reduce((sum, a) => sum + a.price, 0);
-            const unitPrice = currentModalProduct.price + addonsTotal;
-
-            const existingItem = cart.find(item => item.cartItemId === cartItemId);
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                cart.push({ 
-                    ...currentModalProduct, 
-                    cartItemId: cartItemId,
-                    quantity: 1,
-                    addons: [...currentSelectedAddons],
-                    unitPrice: unitPrice
-                });
-            }
-
-            updateCartUI();
-            showToast(`Added ${currentModalProduct.name} to order!`);
-            
-            const badge = document.getElementById('cart-badge');
-            badge.classList.add('scale-125');
-            setTimeout(() => badge.classList.remove('scale-125'), 200);
-
-            closeProductModal();
-        };
-
-        window.removeFromCart = function(cartItemId) {
-            cart = cart.filter(item => item.cartItemId !== cartItemId);
-            updateCartUI();
-        };
-
-        window.changeQuantity = function(cartItemId, delta) {
-            const item = cart.find(item => item.cartItemId === cartItemId);
-            if (!item) return;
-
-            item.quantity += delta;
-            if (item.quantity <= 0) removeFromCart(cartItemId);
-            else updateCartUI();
-        };
-
-        function updateCartUI() {
-            const cartItemsContainer = document.getElementById('cart-items');
-            const emptyMsg = document.getElementById('empty-cart-msg');
-            const badge = document.getElementById('cart-badge');
-            const subtotalEl = document.getElementById('cart-subtotal');
-            const totalEl = document.getElementById('cart-total');
-            const checkoutBtn = document.getElementById('checkout-btn');
-
-            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            badge.textContent = totalItems;
-            if (totalItems > 0) badge.classList.replace('scale-0', 'scale-100');
-            else badge.classList.replace('scale-100', 'scale-0');
-
-            if (cart.length === 0) {
-                emptyMsg.classList.remove('hidden');
-                Array.from(cartItemsContainer.children).forEach(child => {
-                    if (child.id !== 'empty-cart-msg') child.remove();
-                });
-                checkoutBtn.disabled = true;
-            } else {
-                emptyMsg.classList.add('hidden');
-                Array.from(cartItemsContainer.children).forEach(child => {
-                    if (child.id !== 'empty-cart-msg') child.remove();
-                });
-
-                cart.forEach(item => {
-                    const itemEl = document.createElement('div');
-                    itemEl.className = 'flex gap-3 items-start bg-white p-3 rounded-xl border border-coffee-100 shadow-sm animate-pop-in';
+            return `
+                <div class="fade-in max-w-5xl mx-auto">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-6">Overview</h1>
                     
-                    let addonsHtml = '';
-                    if (item.addons && item.addons.length > 0) {
-                        addonsHtml = `<div class="text-[11px] text-coffee-500 mt-0.5 leading-tight mb-1">` + 
-                                     item.addons.map(a => `+ ${a.name}`).join('<br>') + 
-                                     `</div>`;
-                    }
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center gap-4 cursor-pointer hover:shadow-md transition-shadow" onclick="switchTab('history')">
+                            <div class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-2xl"><i class="ph ph-currency-circle-dollar"></i></div>
+                            <div>
+                                <p class="text-sm text-gray-500 font-medium">Today's Revenue</p>
+                                <p class="text-2xl font-bold text-gray-800">₱${stats.revenueToday.toFixed(2)}</p>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center gap-4 cursor-pointer hover:shadow-md transition-shadow" onclick="switchTab('orders')">
+                            <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-2xl"><i class="ph ph-receipt"></i></div>
+                            <div>
+                                <p class="text-sm text-gray-500 font-medium">Active Orders</p>
+                                <p class="text-2xl font-bold text-gray-800">${liveOrders.length}</p>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center gap-4 cursor-pointer hover:shadow-md transition-shadow" onclick="switchTab('inventory')">
+                            <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-2xl"><i class="ph ph-package"></i></div>
+                            <div>
+                                <p class="text-sm text-gray-500 font-medium">Low Stock Alerts</p>
+                                <p class="text-2xl font-bold text-red-600">${lowStockItems.length} Items</p>
+                            </div>
+                        </div>
+                    </div>
 
-                    itemEl.innerHTML = `
-                        <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded-lg mt-1">
-                        <div class="flex-1 min-w-0">
-                            <h4 class="font-serif font-bold text-coffee-900 truncate text-sm">${item.name}</h4>
-                            ${addonsHtml}
-                            <p class="text-coffee-600 font-bold text-sm">₱${(item.unitPrice * item.quantity).toFixed(2)}</p>
-                            
-                            <div class="flex items-center gap-2 mt-2">
-                                <div class="flex items-center border border-coffee-200 rounded-md overflow-hidden bg-coffee-50 h-7">
-                                    <button onclick="changeQuantity('${item.cartItemId}', -1)" class="w-7 h-full flex items-center justify-center hover:bg-coffee-200 text-coffee-800 transition-colors"><i class="ph ph-minus text-[10px]"></i></button>
-                                    <span class="w-6 text-center text-xs font-medium">${item.quantity}</span>
-                                    <button onclick="changeQuantity('${item.cartItemId}', 1)" class="w-7 h-full flex items-center justify-center hover:bg-coffee-200 text-coffee-800 transition-colors"><i class="ph ph-plus text-[10px]"></i></button>
-                                </div>
-                                <button onclick="removeFromCart('${item.cartItemId}')" class="text-red-400 hover:text-red-600 p-1 ml-auto transition-colors">
-                                    <i class="ph ph-trash"></i>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:col-span-2">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="font-bold text-lg text-gray-800">Inventory Alerts</h2>
+                            </div>
+                            <div class="space-y-1">
+                                ${alertsHtml}
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                            <h2 class="font-bold text-lg text-gray-800 mb-4">Quick Actions</h2>
+                            <div class="space-y-3">
+                                <button onclick="simulateOnlineOrder()" class="w-full bg-coffee-50 border border-coffee-200 text-coffee-800 py-3 rounded-lg font-medium hover:bg-coffee-100 transition-colors flex items-center justify-center gap-2">
+                                    <i class="ph ph-bell-ringing"></i> Simulate Incoming Order
+                                </button>
+                                <button onclick="switchTab('products')" class="w-full bg-gray-50 border border-gray-200 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors flex items-center justify-center gap-2">
+                                    <i class="ph ph-list-plus"></i> Manage Menu
                                 </button>
                             </div>
                         </div>
-                    `;
-                    cartItemsContainer.appendChild(itemEl);
-                });
-                checkoutBtn.disabled = false;
-            }
-
-            const subtotal = cart.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
-            
-            subtotalEl.textContent = `₱${subtotal.toFixed(2)}`;
-            totalEl.textContent = `₱${subtotal.toFixed(2)}`;
+                    </div>
+                </div>
+            `;
         }
 
-        window.toggleCart = function() {
-            const drawer = document.getElementById('cart-drawer');
-            const overlay = document.getElementById('cart-overlay');
-            const body = document.body;
-
-            isCartOpen = !isCartOpen;
-
-            if (isCartOpen) {
-                overlay.classList.remove('hidden');
-                setTimeout(() => {
-                    overlay.classList.remove('opacity-0');
-                    overlay.classList.add('opacity-100');
-                    drawer.classList.remove('translate-x-full');
-                }, 10);
-                body.style.overflow = 'hidden';
-            } else {
-                drawer.classList.add('translate-x-full');
-                overlay.classList.remove('opacity-100');
-                overlay.classList.add('opacity-0');
-                setTimeout(() => { overlay.classList.add('hidden'); }, 300);
-                body.style.overflow = '';
+        function getOrdersHTML() {
+            if(liveOrders.length === 0) {
+                return `
+                    <div class="fade-in max-w-5xl mx-auto h-full flex flex-col items-center justify-center text-gray-400 mt-20">
+                        <i class="ph ph-check-circle text-6xl mb-4 opacity-50"></i>
+                        <h2 class="text-xl font-bold text-gray-600">All caught up!</h2>
+                        <p class="mb-6">No pending orders at the moment.</p>
+                        <button onclick="simulateOnlineOrder()" class="bg-coffee-700 text-white px-6 py-2 rounded-lg font-medium hover:bg-coffee-800">Simulate Order</button>
+                    </div>
+                `;
             }
-        };
 
-        function showToast(message) {
+            const ordersHtml = liveOrders.map(order => `
+                <div class="bg-white rounded-xl shadow-sm border ${order.status === 'Pending' ? 'border-amber-200' : 'border-blue-200'} p-5 flex flex-col md:flex-row justify-between gap-4 fade-in relative overflow-hidden">
+                    ${order.status === 'Pending' ? '<div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>' : '<div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>'}
+                    <div class="flex-1 pl-2">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="font-bold text-gray-800">${order.id}</span>
+                            <span class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded font-bold">${order.source}</span>
+                            <span class="text-xs text-gray-400"><i class="ph ph-clock"></i> ${new Date(order.createdAt).toLocaleTimeString()}</span>
+                        </div>
+                        <p class="text-sm font-bold text-gray-700 mb-2"><i class="ph ph-user"></i> ${order.customer}</p>
+                        <ul class="text-sm text-gray-600 space-y-1 mb-3">
+                            ${order.items.map(i => `<li>• ${i}</li>`).join('')}
+                        </ul>
+                        <p class="font-bold text-coffee-700">Total: ₱${order.total.toFixed(2)}</p>
+                    </div>
+                    <div class="flex flex-col gap-2 justify-center min-w-[140px]">
+                        ${order.status === 'Pending' 
+                            ? `<button onclick="updateOrderStatus('${order.id}', 'Preparing')" class="bg-blue-50 text-blue-700 border border-blue-200 py-2 px-4 rounded-lg font-bold text-sm hover:bg-blue-100 transition-colors w-full">Mark Preparing</button>`
+                            : `<button disabled class="bg-gray-100 text-gray-400 border border-gray-200 py-2 px-4 rounded-lg font-bold text-sm w-full">Preparing...</button>`
+                        }
+                        <button onclick="markOrderDone('${order.id}')" class="bg-green-600 text-white py-2 px-4 rounded-lg font-bold text-sm hover:bg-green-700 transition-colors shadow-sm w-full flex items-center justify-center gap-1">
+                            <i class="ph ph-check"></i> Complete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            return `
+                <div class="fade-in max-w-4xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h1 class="text-2xl font-bold text-gray-800">Live Orders (Cloud Synced)</h1>
+                        <button onclick="simulateOnlineOrder()" class="text-sm font-medium text-coffee-600 hover:text-coffee-800 flex items-center gap-1"><i class="ph ph-plus-circle"></i> Test Order</button>
+                    </div>
+                    <div class="space-y-4">
+                        ${ordersHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function groupOrdersByDate(orders) {
+            const grouped = {};
+            orders.forEach(order => {
+                const date = new Date(order.completedAt || order.createdAt).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                if (!grouped[date]) grouped[date] = { orders: [], dailyRevenue: 0 };
+                grouped[date].orders.push(order);
+                grouped[date].dailyRevenue += order.total;
+            });
+            return grouped;
+        }
+
+        function getHistoryHTML() {
+            if(completedOrders.length === 0) {
+                return `
+                    <div class="fade-in max-w-5xl mx-auto h-full flex flex-col items-center justify-center text-gray-400 mt-20">
+                        <i class="ph ph-clock-counter-clockwise text-6xl mb-4 opacity-50"></i>
+                        <h2 class="text-xl font-bold text-gray-600">No History Yet!</h2>
+                        <p class="mb-6">Completed orders will appear here automatically.</p>
+                    </div>
+                `;
+            }
+
+            const groupedOrders = groupOrdersByDate(completedOrders);
+            let historyHtml = '';
+
+            for (const [date, data] of Object.entries(groupedOrders)) {
+                historyHtml += `
+                    <div class="mb-8 fade-in">
+                        <div class="flex justify-between items-end mb-4 border-b border-gray-200 pb-2">
+                            <h3 class="text-lg font-bold text-gray-800">${date}</h3>
+                            <span class="text-sm font-bold text-coffee-600 bg-coffee-50 px-3 py-1 rounded-full border border-coffee-200 shadow-sm">Daily Revenue: ₱${data.dailyRevenue.toFixed(2)}</span>
+                        </div>
+                        <div class="space-y-3">
+                `;
+                
+                data.orders.forEach(order => {
+                    historyHtml += `
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex flex-col md:flex-row justify-between gap-4 relative overflow-hidden opacity-80 hover:opacity-100 transition-opacity">
+                            <div class="absolute top-0 left-0 w-1 h-full bg-green-500"></div>
+                            <div class="flex-1 pl-2">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="font-bold text-gray-800">${order.id}</span>
+                                    <span class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded font-bold">${order.source}</span>
+                                    <span class="text-xs text-gray-500"><i class="ph ph-check-circle text-green-500"></i> Completed ${new Date(order.completedAt || order.createdAt).toLocaleTimeString()}</span>
+                                </div>
+                                <p class="text-sm font-bold text-gray-700 mb-2"><i class="ph ph-user"></i> ${order.customer}</p>
+                                <ul class="text-sm text-gray-500 space-y-1 mb-3">
+                                    ${order.items.map(i => `<li>• ${i}</li>`).join('')}
+                                </ul>
+                                <p class="font-bold text-coffee-700">Paid: ₱${order.total.toFixed(2)}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                historyHtml += `</div></div>`;
+            }
+
+            return `
+                <div class="fade-in max-w-4xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h1 class="text-2xl font-bold text-gray-800">Order History</h1>
+                    </div>
+                    ${historyHtml}
+                </div>
+            `;
+        }
+
+        function getInventoryHTML() {
+            let tableRows = inventoryData.map(item => {
+                const isLow = item.stock <= item.threshold;
+                const statusBadge = isLow 
+                    ? `<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">Low Stock</span>`
+                    : `<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">Good</span>`;
+                
+                return `
+                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <td class="p-4 text-sm font-bold text-gray-800">${item.item}</td>
+                        <td class="p-4 text-sm text-gray-500">${item.category}</td>
+                        <td class="p-4 text-sm font-bold ${isLow ? 'text-red-600' : 'text-gray-700'}">${item.stock} ${item.unit}</td>
+                        <td class="p-4 text-sm text-gray-500">${item.threshold} ${item.unit}</td>
+                        <td class="p-4">${statusBadge}</td>
+                        <td class="p-4 text-right">
+                            <button onclick="restockItem('${item.id}')" class="text-coffee-600 hover:bg-coffee-50 p-2 rounded transition-colors text-sm font-medium border border-transparent hover:border-coffee-200">Restock</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            return `
+                <div class="fade-in max-w-6xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h1 class="text-2xl font-bold text-gray-800">Ingredient Inventory (Cloud Synced)</h1>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-50 border-b border-gray-200">
+                                        <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Item</th>
+                                        <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Category</th>
+                                        <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Current Stock</th>
+                                        <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Restock Alert At</th>
+                                        <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Status</th>
+                                        <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${tableRows}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getProductsHTML() {
+            let tableRows = productsList.map(item => {
+                const available = window.isAvailable(item.id, item.name);
+                const isManuallyDisabled = window.unavailableIds.includes(item.id);
+                
+                let statusHtml = '';
+                if (!available && !isManuallyDisabled) {
+                    statusHtml = '<span class="text-amber-500 font-bold flex items-center gap-1"><i class="ph ph-warning-circle"></i> Out of Stock</span>';
+                } else if (isManuallyDisabled) {
+                    statusHtml = '<span class="text-red-500 font-bold flex items-center gap-1"><i class="ph ph-x-circle"></i> Disabled</span>';
+                } else {
+                    statusHtml = '<span class="text-green-600 font-bold flex items-center gap-1"><i class="ph ph-check-circle"></i> Available</span>';
+                }
+
+                return `
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="p-4 text-sm font-bold text-gray-800">${item.name}</td>
+                    <td class="p-4 text-sm text-gray-500"><span class="bg-gray-100 px-2 py-1 rounded text-xs font-bold">${item.category}</span></td>
+                    <td class="p-4 text-sm font-bold text-coffee-700">₱${item.price.toFixed(2)}</td>
+                    <td class="p-4 text-sm">${statusHtml}</td>
+                    <td class="p-4 text-right">
+                        <button onclick="toggleProductAvailability(${item.id})" class="text-xs px-3 py-1.5 rounded border font-bold transition-colors ${isManuallyDisabled ? 'border-green-200 text-green-600 hover:bg-green-50' : 'border-red-200 text-red-600 hover:bg-red-50'}">
+                            ${isManuallyDisabled ? 'Enable Manually' : 'Disable Manually'}
+                        </button>
+                    </td>
+                </tr>
+            `}).join('');
+
+            return `
+                <div class="fade-in max-w-5xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h1 class="text-2xl font-bold text-gray-800">Product Catalog</h1>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200">
+                                    <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Product Name</th>
+                                    <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Category</th>
+                                    <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Price</th>
+                                    <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Status</th>
+                                    <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider text-right">Admin Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateBadges() {
+            const orderBadge = document.getElementById('nav-order-count');
+            if(liveOrders.length > 0) {
+                orderBadge.textContent = liveOrders.length;
+                orderBadge.classList.remove('hidden');
+            } else {
+                orderBadge.classList.add('hidden');
+            }
+
+            const alertBadge = document.getElementById('nav-alert-count');
+            const lowStockCount = inventoryData.filter(i => i.stock <= i.threshold).length;
+            if(lowStockCount > 0) {
+                alertBadge.textContent = lowStockCount;
+                alertBadge.classList.remove('hidden');
+            } else {
+                alertBadge.classList.add('hidden');
+            }
+        }
+
+        function checkInventoryLevels(showToasts = false) {
+            inventoryData.forEach(item => {
+                if (item.stock <= item.threshold && item.stock > (item.threshold - 2) && showToasts) {
+                    showToast(`Alert: ${item.item} is running low! (${item.stock} ${item.unit} left)`, 'warning');
+                }
+            });
+            updateBadges();
+        }
+
+        function showToast(msg, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = 'bg-coffee-900 text-white px-5 py-3 rounded-lg shadow-xl flex items-center gap-3 transform translate-y-full opacity-0 transition-all duration-300 text-sm z-50';
-            toast.innerHTML = `
-                <div class="bg-coffee-800 rounded-full p-1"><i class="ph ph-check text-green-400"></i></div>
-                <span class="font-medium">${message}</span>
-            `;
+            
+            let colorClasses = 'bg-gray-800 text-white';
+            let icon = 'ph-info';
+            
+            if(type === 'success') { colorClasses = 'bg-green-600 text-white'; icon = 'ph-check-circle'; }
+            if(type === 'warning') { colorClasses = 'bg-red-500 text-white'; icon = 'ph-warning-circle'; }
+
+            toast.className = `${colorClasses} px-5 py-3 rounded-lg shadow-xl flex items-center gap-3 transform translate-y-full opacity-0 transition-all duration-300 text-sm font-medium z-[100]`;
+            toast.innerHTML = `<i class="ph ${icon} text-xl"></i> ${msg}`;
             
             container.appendChild(toast);
+            
             requestAnimationFrame(() => toast.classList.remove('translate-y-full', 'opacity-0'));
-
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'translate-y-2');
                 setTimeout(() => toast.remove(), 300);
-            }, 2500);
+            }, 3000);
         }
 
-        window.openCheckout = async function() {
-            if (cart.length === 0) return;
-            
-            const total = cart.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
-            
-            const btn = document.getElementById('checkout-btn');
-            const originalBtnHtml = btn.innerHTML;
-            btn.innerHTML = '<span>Processing...</span>';
-            btn.disabled = true;
-
-            const orderNumber = await window.submitOrderToFirebase(total, cart);
-            
-            document.getElementById('order-number').textContent = orderNumber || 'BRW-' + Math.floor(Math.random() * 90000 + 10000);
-            document.getElementById('checkout-paid-amount').textContent = `₱${total.toFixed(2)}`;
-            
-            toggleCart();
-
-            const modal = document.getElementById('checkout-modal');
-            const content = document.getElementById('checkout-content');
-            
-            setTimeout(() => {
-                modal.classList.remove('hidden');
-                requestAnimationFrame(() => {
-                    modal.classList.remove('opacity-0');
-                    content.classList.remove('scale-95');
-                    content.classList.add('scale-100');
-                });
-            }, 300);
-            
-            cart = [];
-            updateCartUI();
-            
-            btn.innerHTML = originalBtnHtml;
-            btn.disabled = false;
-        };
-
-        window.closeCheckout = function() {
-            const modal = document.getElementById('checkout-modal');
-            const content = document.getElementById('checkout-content');
-            
-            modal.classList.add('opacity-0');
-            content.classList.remove('scale-100');
-            content.classList.add('scale-95');
-            
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                window.scrollTo({top:0, behavior:'smooth'});
-                
-                // Once closed, open their history to see the new order
-                window.openCustomerHistory();
-            }, 300);
-        };
-
-        // --- Customer History Logic ---
-        window.renderCustomerHistory = function() {
-            const container = document.getElementById('customer-orders-list');
-            if(!container) return;
-
-            if (!window.customerOrders || window.customerOrders.length === 0) {
-                container.innerHTML = `
-                    <div class="h-full flex flex-col items-center justify-center text-gray-400 py-12">
-                        <i class="ph ph-receipt text-6xl mb-4 opacity-30"></i>
-                        <p class="font-medium text-lg text-gray-500">You haven't placed any orders yet.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = window.customerOrders.map(order => {
-                let statusColor = 'bg-amber-100 text-amber-700 border-amber-200';
-                let statusIcon = 'ph-clock';
-                if (order.status === 'Preparing') { statusColor = 'bg-blue-100 text-blue-700 border-blue-200'; statusIcon = 'ph-cooking-pot'; }
-                if (order.status === 'Completed') { statusColor = 'bg-green-100 text-green-700 border-green-200'; statusIcon = 'ph-check-circle'; }
-                
-                return `
-                    <div class="bg-white rounded-xl p-5 border border-gray-100 shadow-sm flex flex-col gap-3 relative overflow-hidden transition-all hover:shadow-md">
-                        ${order.status === 'Pending' ? '<div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>' : ''}
-                        ${order.status === 'Preparing' ? '<div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>' : ''}
-                        ${order.status === 'Completed' ? '<div class="absolute top-0 left-0 w-1 h-full bg-green-500"></div>' : ''}
-                        
-                        <div class="flex justify-between items-start ml-2">
-                            <div>
-                                <h4 class="font-bold text-gray-900">${order.id}</h4>
-                                <span class="text-xs font-medium text-gray-400 mt-1 block">${new Date(order.createdAt).toLocaleString()}</span>
-                            </div>
-                            <span class="${statusColor} border px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5">
-                                <i class="ph ${statusIcon} text-sm"></i> ${order.status}
-                            </span>
-                        </div>
-                        <ul class="text-sm text-gray-600 space-y-1 ml-2 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                            ${order.items.map(i => `<li><span class="text-coffee-600 font-bold mr-1">•</span> ${i}</li>`).join('')}
-                        </ul>
-                        <div class="font-bold text-coffee-900 text-right text-lg border-t border-gray-100 pt-3 mt-1">Total: ₱${order.total.toFixed(2)}</div>
-                    </div>
-                `;
-            }).join('');
-        };
-
-        window.openCustomerHistory = function() {
-            const modal = document.getElementById('history-modal');
-            const content = document.getElementById('history-content');
-            
-            if (typeof window.renderCustomerHistory === 'function') window.renderCustomerHistory();
-            
-            modal.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                modal.classList.remove('opacity-0');
-                content.classList.remove('scale-95');
-                content.classList.add('scale-100');
-            });
-            document.body.style.overflow = 'hidden';
-        };
-
-        window.closeCustomerHistory = function() {
-            const modal = document.getElementById('history-modal');
-            const content = document.getElementById('history-content');
-            modal.classList.add('opacity-0');
-            content.classList.remove('scale-100');
-            content.classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                if(!isCartOpen) document.body.style.overflow = '';
-            }, 300);
-        };
+        document.addEventListener('DOMContentLoaded', () => {
+            switchTab('dashboard');
+        });
     </script>
 </body>
 </html>
