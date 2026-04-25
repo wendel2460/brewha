@@ -91,11 +91,11 @@
                 </div>
 
                 <div class="flex items-center gap-2 md:gap-4">
-                    <button onclick="openCustomerHistory()" class="text-coffee-800 hover:text-coffee-500 transition-colors font-medium flex items-center gap-1 p-2">
+                    <button onclick="window.openCustomerHistory()" class="text-coffee-800 hover:text-coffee-500 transition-colors font-medium flex items-center gap-1 p-2">
                         <i class="ph ph-clock-counter-clockwise text-2xl"></i>
                         <span class="hidden md:inline font-bold text-sm">My Orders</span>
                     </button>
-                    <button onclick="toggleCart()" class="relative p-2 text-coffee-800 hover:text-coffee-500 transition-colors focus:outline-none group">
+                    <button onclick="window.toggleCart()" class="relative p-2 text-coffee-800 hover:text-coffee-500 transition-colors focus:outline-none group">
                         <i class="ph ph-shopping-bag text-2xl group-hover:scale-110 transition-transform"></i>
                         <span id="cart-badge" class="absolute top-0 right-0 bg-coffee-600 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center transform scale-0 transition-transform duration-300">0</span>
                     </button>
@@ -176,12 +176,12 @@
     </footer>
 
     <!-- Cart Slide-out Drawer -->
-    <div id="cart-overlay" class="fixed inset-0 bg-coffee-950/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300" onclick="toggleCart()"></div>
+    <div id="cart-overlay" class="fixed inset-0 bg-coffee-950/60 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300" onclick="window.toggleCart()"></div>
     
     <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full sm:w-[400px] bg-white z-50 transform translate-x-full transition-transform duration-300 flex flex-col shadow-2xl border-l border-coffee-100">
         <div class="px-6 py-5 border-b border-coffee-100 flex justify-between items-center bg-coffee-50">
             <h2 class="text-2xl font-serif text-coffee-900">Your Order</h2>
-            <button onclick="toggleCart()" class="text-coffee-500 hover:text-coffee-800 transition-colors bg-white p-2 rounded-full shadow-sm hover:shadow">
+            <button onclick="window.toggleCart()" class="text-coffee-500 hover:text-coffee-800 transition-colors bg-white p-2 rounded-full shadow-sm hover:shadow">
                 <i class="ph ph-x text-xl"></i>
             </button>
         </div>
@@ -202,7 +202,7 @@
                 <span>Total</span>
                 <span id="cart-total">₱0.00</span>
             </div>
-            <button onclick="openCheckout()" id="checkout-btn" class="w-full bg-coffee-900 text-white py-4 rounded-xl font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex justify-center items-center gap-2" disabled>
+            <button onclick="window.openCheckout()" id="checkout-btn" class="w-full bg-coffee-900 text-white py-4 rounded-xl font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex justify-center items-center gap-2" disabled>
                 <span>Checkout</span>
                 <i class="ph ph-arrow-right"></i>
             </button>
@@ -212,7 +212,7 @@
     <!-- STRICT SIDE-BY-SIDE Product Details & Add-ons Modal -->
     <div id="product-modal" class="fixed inset-0 bg-coffee-950/80 backdrop-blur-md z-[70] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
         <!-- Close overlay -->
-        <div class="absolute inset-0" onclick="closeProductModal()"></div>
+        <div class="absolute inset-0" onclick="window.closeProductModal()"></div>
         
         <!-- Modal Container: Fixed max height 85vh to guarantee footer visibility -->
         <div class="bg-white w-full md:max-w-4xl rounded-2xl shadow-2xl flex flex-col md:flex-row h-[85vh] overflow-hidden transform scale-95 transition-all duration-300 relative z-10" id="pm-content">
@@ -220,7 +220,7 @@
             <!-- Left Side: Image (30% height on mobile, 50% width full height on desktop) -->
             <div class="relative h-[30%] md:h-full md:w-1/2 bg-coffee-100 flex-shrink-0">
                 <img id="pm-image" src="" class="w-full h-full object-cover" alt="">
-                <button onclick="closeProductModal()" class="absolute top-3 right-3 md:hidden bg-white/90 backdrop-blur text-coffee-900 w-8 h-8 flex items-center justify-center rounded-full shadow z-20">
+                <button onclick="window.closeProductModal()" class="absolute top-3 right-3 md:hidden bg-white/90 backdrop-blur text-coffee-900 w-8 h-8 flex items-center justify-center rounded-full shadow z-20">
                     <i class="ph ph-x font-bold"></i>
                 </button>
             </div>
@@ -229,7 +229,7 @@
             <div class="flex-1 flex flex-col md:w-1/2 relative bg-white min-h-0">
                 
                 <!-- Desktop Close Button -->
-                <button onclick="closeProductModal()" class="hidden md:flex absolute top-4 right-4 bg-gray-100 text-gray-500 hover:text-coffee-900 hover:bg-gray-200 w-8 h-8 items-center justify-center rounded-full shadow-sm transition-colors z-20">
+                <button onclick="window.closeProductModal()" class="hidden md:flex absolute top-4 right-4 bg-gray-100 text-gray-500 hover:text-coffee-900 hover:bg-gray-200 w-8 h-8 items-center justify-center rounded-full shadow-sm transition-colors z-20">
                     <i class="ph ph-x font-bold"></i>
                 </button>
 
@@ -256,7 +256,7 @@
 
                 <!-- Fixed Bottom Action Bar -->
                 <div class="w-full p-4 border-t border-coffee-100 bg-gray-50 flex-shrink-0 shadow-[0_-4px_10px_rgb(0,0,0,0.03)]">
-                    <button onclick="confirmAddToCart()" class="w-full bg-coffee-900 text-white py-3.5 rounded-xl font-bold hover:bg-coffee-800 transition-transform active:scale-95 shadow-md flex justify-between items-center px-6">
+                    <button onclick="window.confirmAddToCart()" class="w-full bg-coffee-900 text-white py-3.5 rounded-xl font-bold hover:bg-coffee-800 transition-transform active:scale-95 shadow-md flex justify-between items-center px-6">
                         <span class="flex items-center gap-2"><i class="ph ph-shopping-bag text-lg"></i> Add to Order</span>
                         <span id="pm-btn-price" class="font-bold text-lg"></span>
                     </button>
@@ -268,7 +268,7 @@
 
     <!-- Customer Order History Modal -->
     <div id="history-modal" class="fixed inset-0 bg-coffee-950/80 backdrop-blur-md z-[60] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
-        <div class="absolute inset-0" onclick="closeCustomerHistory()"></div>
+        <div class="absolute inset-0" onclick="window.closeCustomerHistory()"></div>
         <div class="bg-gray-50 rounded-2xl max-w-2xl w-full p-0 shadow-2xl flex flex-col h-[85vh] transform scale-95 transition-transform duration-300 relative z-10" id="history-content">
             <div class="bg-white px-6 py-5 border-b border-gray-200 flex justify-between items-center rounded-t-2xl flex-shrink-0">
                 <div>
@@ -277,7 +277,7 @@
                     </h2>
                     <p class="text-sm text-gray-500 mt-1">Track your current and past orders.</p>
                 </div>
-                <button onclick="closeCustomerHistory()" class="text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 p-2 rounded-full transition-colors">
+                <button onclick="window.closeCustomerHistory()" class="text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 p-2 rounded-full transition-colors">
                     <i class="ph ph-x text-xl font-bold"></i>
                 </button>
             </div>
@@ -311,7 +311,7 @@
                     <span id="checkout-paid-amount"></span>
                 </div>
             </div>
-            <button onclick="closeCheckout()" class="w-full bg-coffee-600 text-white py-3 rounded-xl font-medium hover:bg-coffee-500 transition-colors">
+            <button onclick="window.closeCheckout()" class="w-full bg-coffee-600 text-white py-3 rounded-xl font-medium hover:bg-coffee-500 transition-colors">
                 Track Order Status
             </button>
         </div>
@@ -611,6 +611,14 @@
             return true;
         };
 
+        window.getAddonsForCategory = function(category) {
+            if (["Hot Drinks", "Iced Coffee", "Iced Americano"].includes(category)) return addOnsData.coffee;
+            if (["Non-Coffee", "Soda Float"].includes(category)) return addOnsData.nonCoffee;
+            if (["Fruit Soda"].includes(category)) return addOnsData.fruitSoda;
+            if (["Rice Meals", "A La Carte"].includes(category)) return addOnsData.food;
+            return [];
+        }
+
         function renderTabs() {
             const tabsContainer = document.getElementById('category-tabs');
             tabsContainer.innerHTML = '';
@@ -645,7 +653,6 @@
                 else if(product.category.includes('Soda')) tagColor = 'bg-amber-500/90 text-white';
 
                 const card = document.createElement('div');
-                // The outer card is fully clickable if available
                 card.className = `bg-white rounded-2xl overflow-hidden border border-coffee-100 shadow-sm transition-all duration-300 flex flex-col opacity-0 animate-pop-in ${!available ? 'opacity-60 grayscale cursor-not-allowed' : 'hover:shadow-xl cursor-pointer'}`;
                 card.style.animationDelay = `${(index % 10) * 50}ms`;
                 
@@ -691,7 +698,7 @@
             document.getElementById('pm-price').textContent = `₱${currentModalProduct.price.toFixed(2)}`;
             
             const addonsContainer = document.getElementById('pm-addons-container');
-            const addonsList = getAddonsForCategory(currentModalProduct.category);
+            const addonsList = window.getAddonsForCategory(currentModalProduct.category);
             
             if (addonsList.length > 0) {
                 addonsContainer.classList.remove('hidden');
@@ -841,11 +848,11 @@
                             
                             <div class="flex items-center gap-2 mt-2">
                                 <div class="flex items-center border border-coffee-200 rounded-md overflow-hidden bg-coffee-50 h-7">
-                                    <button onclick="changeQuantity('${item.cartItemId}', -1)" class="w-7 h-full flex items-center justify-center hover:bg-coffee-200 text-coffee-800 transition-colors"><i class="ph ph-minus text-[10px]"></i></button>
+                                    <button onclick="window.changeQuantity('${item.cartItemId}', -1)" class="w-7 h-full flex items-center justify-center hover:bg-coffee-200 text-coffee-800 transition-colors"><i class="ph ph-minus text-[10px]"></i></button>
                                     <span class="w-6 text-center text-xs font-medium">${item.quantity}</span>
-                                    <button onclick="changeQuantity('${item.cartItemId}', 1)" class="w-7 h-full flex items-center justify-center hover:bg-coffee-200 text-coffee-800 transition-colors"><i class="ph ph-plus text-[10px]"></i></button>
+                                    <button onclick="window.changeQuantity('${item.cartItemId}', 1)" class="w-7 h-full flex items-center justify-center hover:bg-coffee-200 text-coffee-800 transition-colors"><i class="ph ph-plus text-[10px]"></i></button>
                                 </div>
-                                <button onclick="removeFromCart('${item.cartItemId}')" class="text-red-400 hover:text-red-600 p-1 ml-auto transition-colors">
+                                <button onclick="window.removeFromCart('${item.cartItemId}')" class="text-red-400 hover:text-red-600 p-1 ml-auto transition-colors">
                                     <i class="ph ph-trash"></i>
                                 </button>
                             </div>
@@ -913,7 +920,7 @@
             document.getElementById('order-number').textContent = orderNumber || 'BRW-' + Math.floor(Math.random() * 90000 + 10000);
             document.getElementById('checkout-paid-amount').textContent = `₱${total.toFixed(2)}`;
             
-            toggleCart();
+            window.toggleCart();
 
             const modal = document.getElementById('checkout-modal');
             const content = document.getElementById('checkout-content');
