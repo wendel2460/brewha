@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brewha | Admin Dashboard</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        coffee: {
+                            50: '#fdf8f4', 100: '#f8efe6', 200: '#eedbc6',
+                            300: '#e1c0a0', 400: '#d19e72', 500: '#c5814e',
+                            600: '#b86a3d', 700: '#9a5334', 800: '#7e452e',
+                            900: '#663928', 950: '#361c12',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans h-screen flex overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-coffee-950 text-white flex flex-col transition-all duration-300 z-20 shadow-xl hidden md:flex">
+        <div class="h-16 flex items-center px-6 border-b border-coffee-800">
+            <i class="ph ph-coffee-bean text-2xl text-coffee-400 mr-2"></i>
+            <span class="font-bold text-xl tracking-wide">Brewha Admin</span>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1 px-3" id="nav-links">
+            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left font-medium bg-coffee-800 text-white transition-colors">
+                <i class="ph ph-squares-four text-lg"></i> Dashboard
+            </button>
+            <button onclick="switchTab('orders')" id="nav-orders" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left font-medium text-coffee-200 hover:bg-coffee-900 transition-colors">
+                <div class="flex items-center gap-3"><i class="ph ph-receipt text-lg"></i> Live Orders</div>
+                <span id="nav-order-count" class="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">3</span>
+            </button>
+            <button onclick="switchTab('inventory')" id="nav-inventory" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left font-medium text-coffee-200 hover:bg-coffee-900 transition-colors">
+                <div class="flex items-center gap-3"><i class="ph ph-package text-lg"></i> Inventory</div>
+                <span id="nav-alert-count" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
+            </button>
+            <button onclick="switchTab('products')" id="nav-products" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left font-medium text-coffee-200 hover:bg-coffee-900 transition-colors">
+                <i class="ph ph-list-dashes text-lg"></i> Product Catalog
+            </button>
+        </nav>
+        <div class="p-4 border-t border-coffee-800">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-coffee-700 flex items-center justify-center font-bold">A</div>
+                <div>
+                    <p class="text-sm font-bold">Admin User</p>
+                    <p class="text-xs text-coffee-400">Manager</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        <!-- Mobile Header -->
+        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-4 md:hidden z-10">
+            <div class="flex items-center gap-2">
+                <i class="ph ph-coffee-bean text-xl text-coffee-600"></i>
+                <span class="font-bold text-lg text-coffee-900">Brewha</span>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="switchTab('orders')" class="p-2 text-gray-600 relative">
+                    <i class="ph ph-receipt text-xl"></i>
+                    <span class="absolute top-1 right-1 bg-amber-500 w-2.5 h-2.5 rounded-full"></span>
+                </button>
+                <button onclick="switchTab('inventory')" class="p-2 text-gray-600">
+                    <i class="ph ph-package text-xl"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- View Container -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50" id="main-view">
+            <!-- Views injected by JS -->
+        </div>
+    </main>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+    <script>
+        // --- Data Models based on your Documents ---
+        
+        // 1. Inventory Data (Derived from INVENTORY-FOR-INGREDIENTS-SUPPLIES.docx)
+        let inventoryData = [
+            { id: 'i1', category: 'Coffee (Hot/Cold)', item: 'Coffee Beans', stock: 2.0, unit: 'Kg', threshold: 1.0 },
+            { id: 'i2', category: 'Coffee (Hot/Cold)', item: 'Fresh Milk', stock: 5.0, unit: 'L', threshold: 2.0 },
+            { id: 'i3', category: 'Coffee (Hot/Cold)', item: 'Condensed Milk', stock: 5, unit: 'Cans', threshold: 2 },
+            { id: 'i4', category: 'Coffee (Hot/Cold)', item: 'Lemon Extract Juice', stock: 500, unit: 'ml', threshold: 200 },
+            { id: 'i5', category: 'Non-Coffee & Add-ons', item: 'Chocolate Syrup', stock: 2.0, unit: 'L', threshold: 1.0 },
+            { id: 'i6', category: 'Non-Coffee & Add-ons', item: 'Matcha Powder', stock: 200, unit: 'g', threshold: 100 },
+            { id: 'i7', category: 'Soda/Essential', item: 'Coke', stock: 20, unit: 'Bottles', threshold: 10 },
+            { id: 'i8', category: 'Soda/Essential', item: 'Ice', stock: 10.0, unit: 'Kg', threshold: 5.0 },
+            { id: 'i9', category: 'Kitchen Meals', item: 'Rice', stock: 10.0, unit: 'Kg', threshold: 5.0 },
+            { id: 'i10', category: 'Kitchen Meals', item: 'Pork', stock: 9.0, unit: 'Kg', threshold: 5.0 },
+            { id: 'i11', category: 'Kitchen Meals', item: 'Siomai', stock: 100, unit: 'pcs', threshold: 40 },
+            { id: 'i12', category: 'Kitchen Meals', item: 'Lumpia', stock: 50, unit: 'pcs', threshold: 40 }, // Set close to threshold
+            { id: 'i13', category: 'Packaging', item: 'Cold Cups', stock: 150, unit: 'pcs', threshold: 100 },
+            { id: 'i14', category: 'Packaging', item: 'Hot Cups', stock: 150, unit: 'pcs', threshold: 100 },
+            { id: 'i15', category: 'Packaging', item: 'Round Paper Bowls', stock: 300, unit: 'pcs', threshold: 100 }
+        ];
+
+        // 2. Orders Data (Mocking Live Online Orders)
+        let liveOrders = [
+            { id: 'ORD-8041', source: 'Online', customer: 'Juan Dela Cruz', items: ['2x Iced Latte', '1x Sisig Rice Meal'], total: 138.00, status: 'Pending', time: '10 mins ago' },
+            { id: 'ORD-8042', source: 'POS', customer: 'Walk-in', items: ['1x Hungarian', '1x Match Dalgona'], total: 99.00, status: 'Preparing', time: '5 mins ago' },
+            { id: 'ORD-8043', source: 'Online', customer: 'Maria Clara', items: ['1x Hot Chocolate', '2x Siomai (4 pcs)'], total: 85.00, status: 'Pending', time: 'Just now' }
+        ];
+
+        // 3. Products Data (Derived from Menu doc)
+        const productsList = [
+            { name: "Sisig", price: 60.00, category: "Rice Meals" },
+            { name: "Hungarian", price: 60.00, category: "Rice Meals" },
+            { name: "Siomai (4 pcs)", price: 25.00, category: "A La Carte" },
+            { name: "Lumpia Shanghai", price: 10.00, category: "A La Carte" },
+            { name: "Brewed Coffee", price: 25.00, category: "Hot Drinks" },
+            { name: "Café Latte", price: 35.00, category: "Hot Drinks" },
+            { name: "Vietnamese Coffee", price: 39.00, category: "Iced Coffee" },
+            { name: "Matcha Dalgona", price: 39.00, category: "Non-Coffee" },
+            { name: "Strawberry Soda", price: 35.00, category: "Fruit Soda" },
+            { name: "Coke Float", price: 39.00, category: "Soda Float" }
+        ];
+
+        let currentTab = 'dashboard';
+        let stats = { revenue: 4520.50, ordersToday: 42 };
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            switchTab('dashboard');
+            checkInventoryLevels(false); // Initial check without toast spam
+        });
+
+        // --- Navigation Logic ---
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update Sidebar Styling
+            document.querySelectorAll('#nav-links button').forEach(btn => {
+                btn.classList.remove('bg-coffee-800', 'text-white');
+                btn.classList.add('text-coffee-200');
+            });
+            const activeBtn = document.getElementById(`nav-${tab}`);
+            if(activeBtn) {
+                activeBtn.classList.remove('text-coffee-200');
+                activeBtn.classList.add('bg-coffee-800', 'text-white');
+            }
+
+            // Render View
+            const viewContainer = document.getElementById('main-view');
+            viewContainer.innerHTML = ''; // Clear
+
+            if(tab === 'dashboard') viewContainer.innerHTML = getDashboardHTML();
+            else if(tab === 'orders') viewContainer.innerHTML = getOrdersHTML();
+            else if(tab === 'inventory') viewContainer.innerHTML = getInventoryHTML();
+            else if(tab === 'products') viewContainer.innerHTML = getProductsHTML();
+
+            updateBadges();
+        }
+
+        // --- HTML Generators for Views ---
+
+        function getDashboardHTML() {
+            const lowStockItems = inventoryData.filter(i => i.stock <= i.threshold);
+            
+            let alertsHtml = lowStockItems.length === 0 
+                ? `<div class="text-gray-500 text-sm py-4 text-center">All inventory levels are good!</div>`
+                : lowStockItems.map(i => `
+                    <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg border border-red-100 mb-2">
+                        <div class="flex items-center gap-3">
+                            <i class="ph ph-warning-circle text-red-500 text-xl"></i>
+                            <div>
+                                <p class="text-sm font-bold text-gray-800">${i.item}</p>
+                                <p class="text-xs text-red-600">Only ${i.stock} ${i.unit} left (Threshold: ${i.threshold})</p>
+                            </div>
+                        </div>
+                        <button onclick="switchTab('inventory')" class="text-xs font-bold text-red-600 bg-white px-3 py-1 rounded border border-red-200 hover:bg-red-50">Review</button>
+                    </div>
+                `).join('');
+
+            return `
+                <div class="fade-in max-w-5xl mx-auto">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-6">Overview</h1>
+                    
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-2xl"><i class="ph ph-currency-circle-dollar"></i></div>
+                            <div>
+                                <p class="text-sm text-gray-500 font-medium">Sales Today</p>
+                                <p class="text-2xl font-bold text-gray-800">₱${stats.revenue.toFixed(2)}</p>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center gap-4 cursor-pointer hover:shadow-md transition-shadow" onclick="switchTab('orders')">
+                            <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-2xl"><i class="ph ph-receipt"></i></div>
+                            <div>
+                                <p class="text-sm text-gray-500 font-medium">Active Orders</p>
+                                <p class="text-2xl font-bold text-gray-800">${liveOrders.length}</p>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center gap-4 cursor-pointer hover:shadow-md transition-shadow" onclick="switchTab('inventory')">
+                            <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-2xl"><i class="ph ph-package"></i></div>
+                            <div>
+                                <p class="text-sm text-gray-500 font-medium">Low Stock Alerts</p>
+                                <p class="text-2xl font-bold text-red-600">${lowStockItems.length} Items</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Layout Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Inventory Alerts -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:col-span-2">
+                            <div class="flex justify-between items-center mb-4">
+                                <h2 class="font-bold text-lg text-gray-800">Inventory Alerts</h2>
+                            </div>
+                            <div class="space-y-1">
+                                ${alertsHtml}
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Actions -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                            <h2 class="font-bold text-lg text-gray-800 mb-4">Quick Actions</h2>
+                            <div class="space-y-3">
+                                <button onclick="simulateOnlineOrder()" class="w-full bg-coffee-50 border border-coffee-200 text-coffee-800 py-3 rounded-lg font-medium hover:bg-coffee-100 transition-colors flex items-center justify-center gap-2">
+                                    <i class="ph ph-bell-ringing"></i> Simulate Incoming Order
+                                </button>
+                                <button onclick="switchTab('products')" class="w-full bg-gray-50 border border-gray-200 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors flex items-center justify-center gap-2">
+                                    <i class="ph ph-list-plus"></i> Manage Menu
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-4 text-center">Simulating an order will deduct items from inventory and trigger alerts if stock goes below threshold.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getOrdersHTML() {
+            if(liveOrders.length === 0) {
+                return `
+                    <div class="fade-in max-w-5xl mx-auto h-full flex flex-col items-center justify-center text-gray-400">
+                        <i class="ph ph-check-circle text-6xl mb-4 opacity-50"></i>
+                        <h2 class="text-xl font-bold text-gray-600">All caught up!</h2>
+                        <p class="mb-6">No pending orders at the moment.</p>
+                        <button onclick="simulateOnlineOrder()" class="bg-coffee-700 text-white px-6 py-2 rounded-lg font-medium hover:bg-coffee-800">Simulate Order</button>
+                    </div>
+                `;
+            }
+
+            const ordersHtml = liveOrders.map(order => `
+                <div class="bg-white rounded-xl shadow-sm border ${order.status === 'Pending' ? 'border-amber-200' : 'border-blue-200'} p-5 flex flex-col md:flex-row justify-between gap-4 fade-in relative overflow-hidden">
+                    ${order.status === 'Pending' ? '<div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>' : '<div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>'}
+                    <div class="flex-1 pl-2">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="font-bold text-gray-800">${order.id}</span>
+                            <span class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded font-bold">${order.source}</span>
+                            <span class="text-xs text-gray-400"><i class="ph ph-clock"></i> ${order.time}</span>
+                        </div>
+                        <p class="text-sm font-bold text-gray-700 mb-2"><i class="ph ph-user"></i> ${order.customer}</p>
+                        <ul class="text-sm text-gray-600 space-y-1 mb-3">
+                            ${order.items.map(i => `<li>• ${i}</li>`).join('')}
+                        </ul>
+                        <p class="font-bold text-coffee-700">Total: ₱${order.total.toFixed(2)}</p>
+                    </div>
+                    <div class="flex flex-col gap-2 justify-center min-w-[140px]">
+                        ${order.status === 'Pending' 
+                            ? `<button onclick="updateOrderStatus('${order.id}', 'Preparing')" class="bg-blue-50 text-blue-700 border border-blue-200 py-2 px-4 rounded-lg font-bold text-sm hover:bg-blue-100 transition-colors w-full">Mark Preparing</button>`
+                            : `<button disabled class="bg-gray-100 text-gray-400 border border-gray-200 py-2 px-4 rounded-lg font-bold text-sm w-full">Preparing...</button>`
+                        }
+                        <button onclick="markOrderDone('${order.id}')" class="bg-green-600 text-white py-2 px-4 rounded-lg font-bold text-sm hover:bg-green-700 transition-colors shadow-sm w-full flex items-center justify-center gap-1">
+                            <i class="ph ph-check"></i> Complete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            return `
+                <div class="fade-in max-w-4xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h1 class="text-2xl font-bold text-gray-800">Live Orders</h1>
+                        <button onclick="simulateOnlineOrder()" class="text-sm font-medium text-coffee-600 hover:text-coffee-800 flex items-center gap-1"><i class="ph ph-plus-circle"></i> Test Order</button>
+                    </div>
+                    <div class="space-y-4">
+                        ${ordersHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function getInventoryHTML() {
+            let tableRows = inventoryData.map(item => {
+                const isLow = item.stock <= item.threshold;
+                const statusBadge = isLow 
+                    ? `<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">Low Stock</span>`
+                    : `<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">Good</span>`;
+                
+                return `
+                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <td class="p-4 text-sm font-bold text-gray-800">${item.item}</td>
+                        <td class="p-4 text-sm text-gray-500">${item.category}</td>
+                        <td class="p-4 text-sm font-bold ${isLow ? 'text-red-600' : 'text-gray-700'}">${item.stock} ${item.unit}</td>
+                        <td class="p-4 text-sm text-gray-500">${item.threshold} ${item.unit}</td>
+                        <td class="p-4">${statusBadge}</td>
+                        <td class="p-4 text-right">
+                            <button onclick="restockItem('${item.id}')" class="text-coffee-600 hover:bg-coffee-50 p-2 rounded transition-colors text-sm font-medium border border-transparent hover:border-coffee-200">Restock</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            return `
+                <div class="fade-in max-w-6xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h1 class="text-2xl font-bold text-gray-800">Ingredient Inventory</h1>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-gray-50 border-b border-gray-200">
+                                        <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Item</th>
+                                        <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Category</th>
+                                        <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Current Stock</th>
+                                        <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Restock Alert At</th>
+                                        <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Status</th>
+                                        <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${tableRows}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getProductsHTML() {
+            let tableRows = productsList.map(item => `
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="p-4 text-sm font-bold text-gray-800">${item.name}</td>
+                    <td class="p-4 text-sm text-gray-500"><span class="bg-gray-100 px-2 py-1 rounded text-xs font-bold">${item.category}</span></td>
+                    <td class="p-4 text-sm font-bold text-coffee-700">₱${item.price.toFixed(2)}</td>
+                    <td class="p-4 text-sm text-green-600 font-bold flex items-center gap-1"><i class="ph ph-check-circle"></i> Available</td>
+                </tr>
+            `).join('');
+
+            return `
+                <div class="fade-in max-w-5xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h1 class="text-2xl font-bold text-gray-800">Product Catalog</h1>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200">
+                                    <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Product Name</th>
+                                    <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Category</th>
+                                    <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Price</th>
+                                    <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">POS Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- Logic & Actions ---
+
+        function updateBadges() {
+            const orderBadge = document.getElementById('nav-order-count');
+            if(liveOrders.length > 0) {
+                orderBadge.textContent = liveOrders.length;
+                orderBadge.classList.remove('hidden');
+            } else {
+                orderBadge.classList.add('hidden');
+            }
+
+            const alertBadge = document.getElementById('nav-alert-count');
+            const lowStockCount = inventoryData.filter(i => i.stock <= i.threshold).length;
+            if(lowStockCount > 0) {
+                alertBadge.textContent = lowStockCount;
+                alertBadge.classList.remove('hidden');
+            } else {
+                alertBadge.classList.add('hidden');
+            }
+        }
+
+        function updateOrderStatus(id, newStatus) {
+            const order = liveOrders.find(o => o.id === id);
+            if(order) order.status = newStatus;
+            if(currentTab === 'orders') switchTab('orders');
+        }
+
+        function markOrderDone(id) {
+            liveOrders = liveOrders.filter(o => o.id !== id);
+            stats.ordersToday += 1;
+            showToast('Order marked as Completed!', 'success');
+            
+            if(currentTab === 'orders') switchTab('orders');
+            else updateBadges();
+        }
+
+        // --- Inventory Deduction Simulation System ---
+        function simulateOnlineOrder() {
+            // Create a fake order
+            const newId = 'ORD-' + Math.floor(Math.random() * 9000 + 1000);
+            liveOrders.unshift({
+                id: newId, source: 'Online', customer: 'New Web Customer', 
+                items: ['1x Vietnamese Coffee', '2x Lumpia Shanghai'], 
+                total: 59.00, status: 'Pending', time: 'Just now'
+            });
+
+            // Simulate Deducting Inventory from the doc data
+            // Vietnamese Coffee uses: Coffee Beans (0.013 Kg), Ice (0.06 Kg), Cold Cup (1), Lid (1)
+            deductInventory('Coffee Beans', 0.015);
+            deductInventory('Ice', 0.07);
+            deductInventory('Cold Cups', 1);
+            
+            // 2x Lumpia uses: Lumpia (2 pcs), Paper Bowl (1)
+            deductInventory('Lumpia', 2);
+            deductInventory('Round Paper Bowls', 1);
+
+            stats.revenue += 59.00;
+
+            showToast(`New Online Order received: ${newId}`, 'info');
+            
+            // Re-render current view to show changes
+            switchTab(currentTab);
+            checkInventoryLevels(true); 
+        }
+
+        function deductInventory(itemName, amount) {
+            const item = inventoryData.find(i => i.item === itemName);
+            if(item) {
+                item.stock = Math.max(0, parseFloat((item.stock - amount).toFixed(3)));
+            }
+        }
+
+        function checkInventoryLevels(showToasts = false) {
+            inventoryData.forEach(item => {
+                // If it just dropped below threshold and is close to it (to avoid spamming already empty items)
+                if (item.stock <= item.threshold && item.stock > (item.threshold - 2) && showToasts) {
+                    showToast(`Alert: ${item.item} is running low! (${item.stock} ${item.unit} left)`, 'warning');
+                }
+            });
+            updateBadges();
+        }
+
+        function restockItem(id) {
+            const item = inventoryData.find(i => i.id === id);
+            if(item) {
+                // Add an arbitrary restock amount just for demo
+                item.stock += (item.threshold * 5);
+                showToast(`Restocked ${item.item}. New level: ${item.stock} ${item.unit}`, 'success');
+                switchTab(currentTab);
+            }
+        }
+
+        // --- UI Utilities ---
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let colorClasses = 'bg-gray-800 text-white';
+            let icon = 'ph-info';
+            
+            if(type === 'success') { colorClasses = 'bg-green-600 text-white'; icon = 'ph-check-circle'; }
+            if(type === 'warning') { colorClasses = 'bg-red-500 text-white'; icon = 'ph-warning-circle'; }
+
+            toast.className = `${colorClasses} px-5 py-3 rounded-lg shadow-xl flex items-center gap-3 transform translate-y-full opacity-0 transition-all duration-300 text-sm font-medium z-[100]`;
+            toast.innerHTML = `<i class="ph ${icon} text-xl"></i> ${msg}`;
+            
+            container.appendChild(toast);
+            
+            requestAnimationFrame(() => toast.classList.remove('translate-y-full', 'opacity-0'));
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

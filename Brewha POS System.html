@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brewha | POS System</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        coffee: {
+                            50: '#fdf8f4',
+                            100: '#f8efe6',
+                            200: '#eedbc6',
+                            300: '#e1c0a0',
+                            400: '#d19e72',
+                            500: '#c5814e',
+                            600: '#b86a3d',
+                            700: '#9a5334',
+                            800: '#7e452e',
+                            900: '#663928',
+                            950: '#361c12',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Hide scrollbar for a cleaner POS look */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* POS Standard Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        body { overscroll-behavior-y: none; } /* Prevent pull-to-refresh on mobile/tablets */
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans h-screen flex flex-col overflow-hidden selection:bg-coffee-200">
+
+    <!-- POS Header -->
+    <header class="bg-coffee-950 text-white h-16 flex items-center justify-between px-6 flex-shrink-0 shadow-md z-20">
+        <div class="flex items-center gap-3">
+            <i class="ph ph-coffee-bean text-2xl text-coffee-400"></i>
+            <span class="font-bold text-xl tracking-wide">Brewha POS</span>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="text-sm font-medium text-coffee-200 hidden md:block" id="live-clock"></div>
+            <div class="flex items-center gap-2 bg-coffee-900 px-3 py-1.5 rounded-lg border border-coffee-800">
+                <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                <span class="text-sm font-medium">Cashier: Admin</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main POS Interface -->
+    <div class="flex flex-1 overflow-hidden flex-col md:flex-row">
+        
+        <!-- Left Side: Menu Grid -->
+        <main class="flex-1 flex flex-col min-w-0 bg-gray-50 z-0">
+            <!-- Categories Bar -->
+            <div class="bg-white border-b border-gray-200 p-4 shadow-sm z-10 flex-shrink-0">
+                <div id="category-tabs" class="flex overflow-x-auto no-scrollbar gap-2 pb-1">
+                    <!-- Tabs injected by JS -->
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <div class="flex-1 overflow-y-auto p-4 md:p-6" id="product-grid-container">
+                <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    <!-- Products injected by JS -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Side: Order Ticket (Cart) -->
+        <aside class="w-full md:w-96 bg-white border-l border-gray-200 flex flex-col shadow-xl z-10 h-[50vh] md:h-auto flex-shrink-0">
+            <!-- Ticket Header -->
+            <div class="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center flex-shrink-0">
+                <h2 class="font-bold text-gray-800 flex items-center gap-2">
+                    <i class="ph ph-receipt"></i> Current Order
+                </h2>
+                <button onclick="clearOrder()" class="text-sm text-red-500 font-medium hover:bg-red-50 px-2 py-1 rounded transition-colors flex items-center gap-1">
+                    <i class="ph ph-trash"></i> Clear
+                </button>
+            </div>
+
+            <!-- Order Items -->
+            <div id="ticket-items" class="flex-1 overflow-y-auto p-4 space-y-3 bg-white">
+                <div id="empty-ticket-msg" class="h-full flex flex-col items-center justify-center text-gray-400 gap-2">
+                    <i class="ph ph-shopping-cart text-4xl"></i>
+                    <p class="text-sm font-medium">No items in order</p>
+                </div>
+                <!-- Items injected by JS -->
+            </div>
+
+            <!-- Ticket Footer (Totals & Pay) -->
+            <div class="border-t border-gray-200 bg-gray-50 p-4 flex-shrink-0 shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.05)]">
+                <div class="flex justify-between text-gray-500 mb-1 text-sm font-medium">
+                    <span>Subtotal</span>
+                    <span id="ticket-subtotal">₱0.00</span>
+                </div>
+                <!-- Taxes are usually inclusive in PH, but we show structure -->
+                <div class="flex justify-between text-gray-500 mb-3 text-sm font-medium border-b border-gray-200 pb-3">
+                    <span>Discount</span>
+                    <span>₱0.00</span>
+                </div>
+                <div class="flex justify-between items-end mb-4">
+                    <span class="text-gray-800 font-bold">Total</span>
+                    <span id="ticket-total" class="text-3xl font-bold text-coffee-700">₱0.00</span>
+                </div>
+                
+                <button onclick="openPaymentModal()" id="pay-btn" class="w-full bg-coffee-700 text-white py-4 rounded-xl font-bold text-lg hover:bg-coffee-800 active:bg-coffee-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex justify-center items-center gap-2" disabled>
+                    <i class="ph ph-credit-card"></i> Pay Order
+                </button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- 1. Add-ons Modal -->
+    <div id="addon-modal" class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-[popIn_0.2s_ease-out]">
+            <!-- Header -->
+            <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                <div>
+                    <h3 id="addon-product-name" class="font-bold text-xl text-gray-800"></h3>
+                    <p id="addon-product-price" class="text-coffee-600 font-bold text-sm"></p>
+                </div>
+                <button onclick="closeAddonModal()" class="w-10 h-10 rounded-full bg-gray-200 text-gray-600 hover:bg-gray-300 flex items-center justify-center transition-colors">
+                    <i class="ph ph-x font-bold"></i>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6 overflow-y-auto flex-1">
+                <h4 class="font-bold text-gray-700 mb-4 flex items-center gap-2">
+                    <i class="ph ph-list-plus text-coffee-600 text-xl"></i> Select Add-ons
+                </h4>
+                <div id="addon-list" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Checkboxes injected by JS -->
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="p-5 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <span class="text-gray-500 font-medium text-sm">Item Total:</span>
+                    <span id="addon-total-price" class="font-bold text-2xl text-coffee-700"></span>
+                </div>
+                <button onclick="confirmAddProduct()" class="bg-coffee-700 hover:bg-coffee-800 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-md transition-colors">
+                    <i class="ph ph-check-circle"></i> Add to Ticket
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Payment Modal -->
+    <div id="payment-modal" class="fixed inset-0 bg-gray-900/80 backdrop-blur-sm z-[70] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl flex overflow-hidden max-h-[90vh] animate-[popIn_0.2s_ease-out]">
+            
+            <!-- Left: Order Summary -->
+            <div class="w-1/3 bg-gray-50 border-r border-gray-200 p-6 flex flex-col hidden md:flex">
+                <h3 class="font-bold text-gray-800 mb-4 border-b border-gray-200 pb-2">Order Summary</h3>
+                <div id="payment-summary-items" class="flex-1 overflow-y-auto space-y-3 mb-4 text-sm text-gray-600">
+                    <!-- Injected by JS -->
+                </div>
+                <div class="pt-4 border-t border-gray-200">
+                    <div class="flex justify-between text-gray-800 font-bold text-lg">
+                        <span>Total Due</span>
+                        <span id="payment-total-due" class="text-coffee-700"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Payment Processor -->
+            <div class="flex-1 p-6 flex flex-col bg-white">
+                <div class="flex justify-between items-start mb-6">
+                    <h2 class="font-bold text-2xl text-gray-800 flex items-center gap-2">
+                        <i class="ph ph-wallet text-coffee-600"></i> Payment
+                    </h2>
+                    <button onclick="closePaymentModal()" class="w-10 h-10 rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                        <i class="ph ph-x font-bold"></i>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6 flex-1">
+                    <!-- Numpad & Input -->
+                    <div class="flex flex-col">
+                        <label class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Amount Tendered</label>
+                        <div class="relative mb-4">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-bold text-gray-400">₱</span>
+                            <input type="number" id="cash-input" class="w-full bg-gray-50 border border-gray-300 rounded-xl py-4 pl-10 pr-4 text-3xl font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-coffee-500 focus:border-coffee-500 transition-all" placeholder="0.00" oninput="calculateChange()">
+                        </div>
+
+                        <!-- Quick Cash Buttons -->
+                        <div class="grid grid-cols-2 gap-2 mb-4">
+                            <button onclick="setCashExact()" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-lg border border-gray-200 transition-colors">Exact</button>
+                            <button onclick="setCash(100)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-lg border border-gray-200 transition-colors">₱100</button>
+                            <button onclick="setCash(500)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-lg border border-gray-200 transition-colors">₱500</button>
+                            <button onclick="setCash(1000)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-lg border border-gray-200 transition-colors">₱1000</button>
+                        </div>
+                    </div>
+
+                    <!-- Change Calculation -->
+                    <div class="bg-gray-50 rounded-xl p-6 border border-gray-200 flex flex-col justify-center items-center text-center">
+                        <p class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Change Due</p>
+                        <p id="change-due" class="text-5xl font-bold text-gray-300 mb-6 transition-colors duration-300">₱0.00</p>
+                        
+                        <div id="payment-status-badge" class="px-4 py-2 rounded-full font-bold text-sm bg-gray-200 text-gray-500 mb-auto">
+                            Waiting for cash...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Complete Button -->
+                <div class="pt-6 mt-auto border-t border-gray-100">
+                    <button onclick="completeOrder()" id="complete-order-btn" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-xl hover:bg-green-700 active:bg-green-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex justify-center items-center gap-2" disabled>
+                        <i class="ph ph-check-circle"></i> Complete Transaction
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Toast Notification -->
+    <div id="toast-container" class="fixed bottom-6 left-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+    <script>
+        // --- Data ---
+        const rawMenu = [
+            { name: "Fried Egg", price: 15.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1525916801717-94ec18db35b1?auto=format&fit=crop&w=200&q=80" },
+            { name: "Siomai (4 pcs)", price: 25.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=200&q=80" },
+            { name: "Lumpia Shanghai", price: 10.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=200&q=80" },
+            { name: "Chicken Pastil", price: 40.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=200&q=80" },
+            { name: "Adobo", price: 50.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1598515322629-943015f6ceee?auto=format&fit=crop&w=200&q=80" },
+            { name: "Rice", price: 15.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=200&q=80" },
+            { name: "Dinuguan", price: 50.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1548943487-a2e4e43b4850?auto=format&fit=crop&w=200&q=80" },
+            { name: "Puto", price: 10.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1600289031464-74d374b64991?auto=format&fit=crop&w=200&q=80" },
+            { name: "Hungarian", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=200&q=80" },
+            { name: "Pork Katsu", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1578160112054-954a67602b88?auto=format&fit=crop&w=200&q=80" },
+            { name: "Chicken Adobo", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=200&q=80" },
+            { name: "Sisig", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1627308595229-7830f5c95f9d?auto=format&fit=crop&w=200&q=80" },
+            { name: "Chicken Pastil", price: 50.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=200&q=80" },
+            { name: "Lumpia Shanghai (3 pcs)", price: 50.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=200&q=80" },
+            { name: "Hotdog (2 pcs)", price: 40.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1541214113241-21578d2d9b62?auto=format&fit=crop&w=200&q=80" },
+            { name: "Siomai (4 pcs) Meal", price: 35.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=200&q=80" },
+            { name: "Brewed Coffee", price: 25.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=200&q=80" },
+            { name: "Café Latte", price: 35.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?auto=format&fit=crop&w=200&q=80" },
+            { name: "Hot Chocolate", price: 35.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?auto=format&fit=crop&w=200&q=80" },
+            { name: "Vietnamese Coffee", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=200&q=80" },
+            { name: "Latte", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=200&q=80" },
+            { name: "Greek Frappe", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=200&q=80" },
+            { name: "Café Mocha", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=200&q=80" },
+            { name: "Honey-Lemon", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1527661591475-527312dd65f5?auto=format&fit=crop&w=200&q=80" },
+            { name: "Lychee-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=200&q=80" },
+            { name: "Orange-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1600271886742-f049cd451b08?auto=format&fit=crop&w=200&q=80" },
+            { name: "Coconut-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1595981267035-7b04d9b4b005?auto=format&fit=crop&w=200&q=80" },
+            { name: "Iced Chocolate", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1546548970-71785318a306?auto=format&fit=crop&w=200&q=80" },
+            { name: "Choco Float", price: 45.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1553177595-4de2bb0842b9?auto=format&fit=crop&w=200&q=80" },
+            { name: "Milky Strawberry", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1553787762-b5f528158c9c?auto=format&fit=crop&w=200&q=80" },
+            { name: "Matcha Dalgona", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&w=200&q=80" },
+            { name: "Strawberry", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=200&q=80" },
+            { name: "Four Seasons", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=200&q=80" },
+            { name: "Blue Lemonade", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=200&q=80" },
+            { name: "Lychee", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=200&q=80" },
+            { name: "Blueberry", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1597403491447-3ab08f8e44dc?auto=format&fit=crop&w=200&q=80" },
+            { name: "Green Apple", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=200&q=80" },
+            { name: "Orange", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1600271886742-f049cd451b08?auto=format&fit=crop&w=200&q=80" },
+            { name: "Coke Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1628873041695-095562095ce9?auto=format&fit=crop&w=200&q=80" },
+            { name: "Strawberry Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&w=200&q=80" },
+            { name: "Blueberry Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1597403491447-3ab08f8e44dc?auto=format&fit=crop&w=200&q=80" }
+        ];
+
+        const products = rawMenu.map((item, index) => ({ id: index + 1, ...item }));
+        const categories = ["All", "Rice Meals", "A La Carte", "Hot Drinks", "Iced Coffee", "Iced Americano", "Non-Coffee", "Fruit Soda", "Soda Float"];
+
+        const addOnsData = {
+            coffee: [
+                { id: 'c1', name: 'Extra Espresso', price: 15 },
+                { id: 'c2', name: 'Fresh Milk', price: 10 },
+                { id: 'c3', name: 'Condensed Milk', price: 10 },
+                { id: 'c4', name: 'Honey', price: 10 },
+                { id: 'c5', name: 'Lemon Juice', price: 10 },
+                { id: 'c6', name: 'Whipped Cream', price: 10 },
+                { id: 'c7', name: 'Caramel Syrup', price: 10 },
+                { id: 'c8', name: 'Vanilla Syrup', price: 10 },
+                { id: 'c9', name: 'Hazelnut Syrup', price: 10 }
+            ],
+            nonCoffee: [
+                { id: 'nc1', name: 'Chocolate Syrup', price: 10 },
+                { id: 'nc2', name: 'Strawberry Puree', price: 15 },
+                { id: 'nc3', name: 'Matcha Powder', price: 15 },
+                { id: 'nc4', name: 'Vanilla Ice Cream', price: 20 },
+                { id: 'nc5', name: 'Coffee Jelly', price: 10 },
+                { id: 'nc6', name: 'Pearl / Boba', price: 10 },
+                { id: 'nc7', name: 'Cream Cheese Foam', price: 15 },
+                { id: 'nc8', name: 'Extra Choco Drizzle', price: 10 }
+            ],
+            fruitSoda: [
+                { id: 'fs1', name: 'Strawberry Syrup', price: 10 },
+                { id: 'fs2', name: 'Four Seasons Syrup', price: 10 },
+                { id: 'fs3', name: 'Blueberry Syrup', price: 10 },
+                { id: 'fs4', name: 'Lychee Syrup', price: 10 },
+                { id: 'fs5', name: 'Green Apple Syrup', price: 10 },
+                { id: 'fs6', name: 'Orange Syrup', price: 10 },
+                { id: 'fs7', name: 'Lemon Slices', price: 10 },
+                { id: 'fs8', name: 'Popping Boba', price: 15 }
+            ],
+            food: [
+                { id: 'f1', name: 'Extra Rice', price: 15 },
+                { id: 'f2', name: 'Fried Egg', price: 15 },
+                { id: 'f3', name: 'Extra Gravy', price: 10 },
+                { id: 'f4', name: 'Cheese Sauce', price: 15 },
+                { id: 'f5', name: 'Extra Siomai', price: 20 },
+                { id: 'f6', name: 'Extra Lumpia', price: 10 },
+                { id: 'f7', name: 'Extra Hotdog', price: 15 },
+                { id: 'f8', name: 'Extra Adobo Top', price: 20 },
+                { id: 'f9', name: 'Extra Sisig Top', price: 20 },
+                { id: 'f10', name: 'Chili Garlic', price: 10 }
+            ]
+        };
+
+        // --- State ---
+        let ticket = [];
+        let activeCategory = "All";
+        let modalProduct = null;
+        let modalAddons = [];
+        let orderTotal = 0;
+
+        // --- Init ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTabs();
+            renderProducts();
+            startClock();
+        });
+
+        // --- Utilities ---
+        function startClock() {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('live-clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            }, 1000);
+        }
+
+        function getAddonsForCategory(cat) {
+            if (["Hot Drinks", "Iced Coffee", "Iced Americano"].includes(cat)) return addOnsData.coffee;
+            if (["Non-Coffee", "Soda Float"].includes(cat)) return addOnsData.nonCoffee;
+            if (["Fruit Soda"].includes(cat)) return addOnsData.fruitSoda;
+            if (["Rice Meals", "A La Carte"].includes(cat)) return addOnsData.food;
+            return [];
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'bg-gray-800 text-white px-4 py-3 rounded shadow-lg flex items-center gap-2 transform translate-y-full opacity-0 transition-all duration-300 text-sm font-medium';
+            toast.innerHTML = `<i class="ph ph-check-circle text-green-400 text-lg"></i> ${msg}`;
+            container.appendChild(toast);
+            
+            requestAnimationFrame(() => toast.classList.remove('translate-y-full', 'opacity-0'));
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        // --- Rendering ---
+        function renderTabs() {
+            const container = document.getElementById('category-tabs');
+            container.innerHTML = '';
+            categories.forEach(cat => {
+                const isActive = cat === activeCategory;
+                const btn = document.createElement('button');
+                btn.className = `px-5 py-2.5 rounded-lg font-bold text-sm whitespace-nowrap transition-colors border ${
+                    isActive ? 'bg-coffee-700 text-white border-coffee-800' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                }`;
+                btn.textContent = cat;
+                btn.onclick = () => { activeCategory = cat; renderTabs(); renderProducts(); };
+                container.appendChild(btn);
+            });
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = '';
+            const filtered = activeCategory === "All" ? products : products.filter(p => p.category === activeCategory);
+
+            filtered.forEach(p => {
+                // Determine color badge
+                let colorClass = 'bg-gray-100 text-gray-600';
+                if(p.category.includes('Coffee') || p.category.includes('Hot')) colorClass = 'bg-coffee-100 text-coffee-800';
+                else if(p.category.includes('Soda')) colorClass = 'bg-amber-100 text-amber-800';
+
+                const el = document.createElement('div');
+                el.className = 'bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-md hover:border-coffee-300 transition-all cursor-pointer active:scale-95 select-none flex flex-col';
+                el.onclick = () => openAddonModal(p.id);
+                el.innerHTML = `
+                    <div class="h-28 bg-gray-100 relative">
+                        <img src="${p.image}" class="w-full h-full object-cover pointer-events-none" loading="lazy">
+                        <span class="absolute top-2 left-2 ${colorClass} text-[9px] font-bold uppercase px-2 py-0.5 rounded shadow-sm">${p.category}</span>
+                    </div>
+                    <div class="p-3 flex flex-col flex-1 justify-between">
+                        <h3 class="font-bold text-gray-800 text-sm leading-tight mb-2 line-clamp-2">${p.name}</h3>
+                        <span class="text-coffee-600 font-bold">₱${p.price.toFixed(2)}</span>
+                    </div>
+                `;
+                grid.appendChild(el);
+            });
+        }
+
+        function renderTicket() {
+            const container = document.getElementById('ticket-items');
+            const emptyMsg = document.getElementById('empty-ticket-msg');
+            const subtotalEl = document.getElementById('ticket-subtotal');
+            const totalEl = document.getElementById('ticket-total');
+            const payBtn = document.getElementById('pay-btn');
+
+            if (ticket.length === 0) {
+                emptyMsg.classList.remove('hidden');
+                Array.from(container.children).forEach(c => { if(c.id !== 'empty-ticket-msg') c.remove(); });
+                subtotalEl.textContent = '₱0.00';
+                totalEl.textContent = '₱0.00';
+                orderTotal = 0;
+                payBtn.disabled = true;
+                return;
+            }
+
+            emptyMsg.classList.add('hidden');
+            Array.from(container.children).forEach(c => { if(c.id !== 'empty-ticket-msg') c.remove(); });
+
+            let subtotal = 0;
+
+            ticket.forEach(item => {
+                subtotal += (item.unitPrice * item.quantity);
+                const el = document.createElement('div');
+                el.className = 'bg-white border border-gray-100 p-3 rounded-lg shadow-sm flex flex-col gap-2 relative group';
+                
+                let addonsHtml = '';
+                if(item.addons.length > 0) {
+                    addonsHtml = `<div class="text-xs text-gray-500 font-medium">` + item.addons.map(a => `+ ${a.name}`).join('<br>') + `</div>`;
+                }
+
+                el.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="pr-6">
+                            <h4 class="font-bold text-gray-800 text-sm">${item.name}</h4>
+                            ${addonsHtml}
+                        </div>
+                        <span class="font-bold text-coffee-700 text-sm whitespace-nowrap">₱${(item.unitPrice * item.quantity).toFixed(2)}</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <div class="flex items-center bg-gray-100 rounded-md overflow-hidden border border-gray-200">
+                            <button onclick="changeTicketQty('${item.ticketId}', -1)" class="w-8 h-7 flex items-center justify-center hover:bg-gray-200 text-gray-600 transition-colors"><i class="ph ph-minus font-bold"></i></button>
+                            <span class="w-8 text-center text-xs font-bold text-gray-800">${item.quantity}</span>
+                            <button onclick="changeTicketQty('${item.ticketId}', 1)" class="w-8 h-7 flex items-center justify-center hover:bg-gray-200 text-gray-600 transition-colors"><i class="ph ph-plus font-bold"></i></button>
+                        </div>
+                        <button onclick="removeTicketItem('${item.ticketId}')" class="text-gray-400 hover:text-red-500 transition-colors bg-white w-7 h-7 rounded flex items-center justify-center">
+                            <i class="ph ph-trash text-lg"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+
+            orderTotal = subtotal; // Inclusive tax assumption
+            subtotalEl.textContent = `₱${subtotal.toFixed(2)}`;
+            totalEl.textContent = `₱${orderTotal.toFixed(2)}`;
+            payBtn.disabled = false;
+            
+            // Scroll to bottom of ticket
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // --- Ticket Logic ---
+        function clearOrder() {
+            if(ticket.length === 0) return;
+            if(confirm('Are you sure you want to clear the entire order?')) {
+                ticket = [];
+                renderTicket();
+            }
+        }
+
+        function changeTicketQty(tid, delta) {
+            const item = ticket.find(i => i.ticketId === tid);
+            if(!item) return;
+            item.quantity += delta;
+            if(item.quantity <= 0) removeTicketItem(tid);
+            else renderTicket();
+        }
+
+        function removeTicketItem(tid) {
+            ticket = ticket.filter(i => i.ticketId !== tid);
+            renderTicket();
+        }
+
+        // --- Add-on Modal Logic ---
+        function openAddonModal(pid) {
+            modalProduct = products.find(p => p.id === pid);
+            if(!modalProduct) return;
+            
+            const availableAddons = getAddonsForCategory(modalProduct.category);
+            modalAddons = [];
+            
+            // If no add-ons available, skip modal and add directly
+            if(availableAddons.length === 0) {
+                confirmAddProduct();
+                return;
+            }
+
+            document.getElementById('addon-product-name').textContent = modalProduct.name;
+            document.getElementById('addon-product-price').textContent = `Base Price: ₱${modalProduct.price.toFixed(2)}`;
+            updateAddonModalTotal();
+
+            const list = document.getElementById('addon-list');
+            list.innerHTML = '';
+            
+            availableAddons.forEach(a => {
+                list.innerHTML += `
+                    <label class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer select-none transition-colors">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" class="w-5 h-5 text-coffee-600 rounded border-gray-300 focus:ring-coffee-500" 
+                                   onchange="toggleModalAddon('${a.id}', '${a.name}', ${a.price}, this.checked)">
+                            <span class="text-sm font-bold text-gray-700">${a.name}</span>
+                        </div>
+                        <span class="text-sm font-bold text-coffee-600">+₱${a.price.toFixed(2)}</span>
+                    </label>
+                `;
+            });
+
+            document.getElementById('addon-modal').classList.remove('hidden');
+        }
+
+        function closeAddonModal() {
+            document.getElementById('addon-modal').classList.add('hidden');
+        }
+
+        function toggleModalAddon(id, name, price, checked) {
+            if(checked) modalAddons.push({id, name, price});
+            else modalAddons = modalAddons.filter(a => a.id !== id);
+            updateAddonModalTotal();
+        }
+
+        function updateAddonModalTotal() {
+            if(!modalProduct) return;
+            const extra = modalAddons.reduce((sum, a) => sum + a.price, 0);
+            document.getElementById('addon-total-price').textContent = `₱${(modalProduct.price + extra).toFixed(2)}`;
+        }
+
+        function confirmAddProduct() {
+            if(!modalProduct) return;
+            
+            const addonIdString = modalAddons.map(a => a.id).sort().join('-');
+            const ticketId = `${modalProduct.id}-${addonIdString}`;
+            const extrasTotal = modalAddons.reduce((sum, a) => sum + a.price, 0);
+            const unitPrice = modalProduct.price + extrasTotal;
+
+            const existing = ticket.find(t => t.ticketId === ticketId);
+            if(existing) {
+                existing.quantity += 1;
+            } else {
+                ticket.push({
+                    ticketId,
+                    ...modalProduct,
+                    addons: [...modalAddons],
+                    unitPrice,
+                    quantity: 1
+                });
+            }
+
+            renderTicket();
+            closeAddonModal();
+        }
+
+        // --- Payment Logic ---
+        function openPaymentModal() {
+            if(ticket.length === 0) return;
+            
+            // Populate Summary
+            const summary = document.getElementById('payment-summary-items');
+            summary.innerHTML = '';
+            ticket.forEach(item => {
+                summary.innerHTML += `
+                    <div class="flex justify-between border-b border-gray-100 pb-2">
+                        <div>
+                            <span class="font-bold text-gray-800">${item.quantity}x</span> ${item.name}
+                        </div>
+                        <span class="font-bold">₱${(item.unitPrice * item.quantity).toFixed(2)}</span>
+                    </div>
+                `;
+            });
+
+            document.getElementById('payment-total-due').textContent = `₱${orderTotal.toFixed(2)}`;
+            document.getElementById('cash-input').value = '';
+            document.getElementById('change-due').textContent = '₱0.00';
+            document.getElementById('change-due').classList.remove('text-green-500', 'text-red-500');
+            document.getElementById('change-due').classList.add('text-gray-300');
+            
+            const badge = document.getElementById('payment-status-badge');
+            badge.textContent = 'Waiting for cash...';
+            badge.className = 'px-4 py-2 rounded-full font-bold text-sm bg-gray-200 text-gray-500 mb-auto';
+            
+            document.getElementById('complete-order-btn').disabled = true;
+
+            document.getElementById('payment-modal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('cash-input').focus(), 100);
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+        }
+
+        function setCashExact() {
+            document.getElementById('cash-input').value = orderTotal;
+            calculateChange();
+        }
+
+        function setCash(amount) {
+            // Adds to current input if it's already higher, otherwise replaces
+            const input = document.getElementById('cash-input');
+            let current = parseFloat(input.value) || 0;
+            
+            // Typical POS behavior: if exact button pressed, it overrides.
+            input.value = amount;
+            calculateChange();
+        }
+
+        function calculateChange() {
+            const tendered = parseFloat(document.getElementById('cash-input').value) || 0;
+            const changeEl = document.getElementById('change-due');
+            const badge = document.getElementById('payment-status-badge');
+            const btn = document.getElementById('complete-order-btn');
+
+            if (tendered >= orderTotal) {
+                const change = tendered - orderTotal;
+                changeEl.textContent = `₱${change.toFixed(2)}`;
+                changeEl.classList.remove('text-gray-300', 'text-red-500');
+                changeEl.classList.add('text-green-500');
+                
+                badge.textContent = 'Sufficient Funds';
+                badge.className = 'px-4 py-2 rounded-full font-bold text-sm bg-green-100 text-green-700 mb-auto';
+                btn.disabled = false;
+            } else {
+                changeEl.textContent = `₱0.00`;
+                changeEl.classList.remove('text-green-500');
+                if(tendered > 0) {
+                    changeEl.classList.add('text-red-500');
+                    badge.textContent = `Need ₱${(orderTotal - tendered).toFixed(2)} more`;
+                    badge.className = 'px-4 py-2 rounded-full font-bold text-sm bg-red-100 text-red-700 mb-auto';
+                } else {
+                    changeEl.classList.add('text-gray-300');
+                    badge.textContent = 'Waiting for cash...';
+                    badge.className = 'px-4 py-2 rounded-full font-bold text-sm bg-gray-200 text-gray-500 mb-auto';
+                }
+                btn.disabled = true;
+            }
+        }
+
+        function completeOrder() {
+            const tendered = parseFloat(document.getElementById('cash-input').value) || 0;
+            if (tendered < orderTotal) return;
+
+            const change = tendered - orderTotal;
+            
+            closePaymentModal();
+            ticket = [];
+            renderTicket();
+            
+            showToast(`Order Complete! Change: ₱${change.toFixed(2)}`);
+        }
+    </script>
+</body>
+</html>
