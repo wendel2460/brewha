@@ -57,7 +57,7 @@
             </button>
             <button onclick="switchTab('orders')" id="nav-orders" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left font-medium text-coffee-200 hover:bg-coffee-900 transition-colors">
                 <div class="flex items-center gap-3"><i class="ph ph-receipt text-lg"></i> Live Orders</div>
-                <span id="nav-order-count" class="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">3</span>
+                <span id="nav-order-count" class="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
             </button>
             <button onclick="switchTab('inventory')" id="nav-inventory" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left font-medium text-coffee-200 hover:bg-coffee-900 transition-colors">
                 <div class="flex items-center gap-3"><i class="ph ph-package text-lg"></i> Inventory</div>
@@ -75,6 +75,9 @@
                     <p class="text-xs text-coffee-400">Manager</p>
                 </div>
             </div>
+            <button onclick="window.location.href='index.html'" class="w-full mt-4 text-sm text-coffee-400 hover:text-white flex items-center gap-2 transition-colors">
+                <i class="ph ph-sign-out"></i> Logout
+            </button>
         </div>
     </aside>
 
@@ -94,6 +97,9 @@
                 <button onclick="switchTab('inventory')" class="p-2 text-gray-600">
                     <i class="ph ph-package text-xl"></i>
                 </button>
+                <button onclick="window.location.href='index.html'" class="p-2 text-gray-600">
+                    <i class="ph ph-sign-out text-xl"></i>
+                </button>
             </div>
         </header>
 
@@ -106,11 +112,54 @@
     <!-- Toast Notifications -->
     <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
-    <script>
-        // --- Data Models based on your Documents ---
+    <!-- Firebase Integration -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- 1. FIREBASE CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDsap0Yqqlr5ghuhXJuCbItWCQRNXKJMP8",
+            authDomain: "brewha-cafe.firebaseapp.com",
+            projectId: "brewha-cafe",
+            storageBucket: "brewha-cafe.firebasestorage.app",
+            messagingSenderId: "831922440831",
+            appId: "1:831922440831:web:03c44a4598d00c6c0c4d4a",
+            measurementId: "G-83SR0EB5EE"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const firestoreAppId = 'brewha-cafe'; 
+
+        // --- 2. AUTHENTICATION & LISTENERS ---
+        let user = null;
         
-        // 1. Inventory Data (Derived from INVENTORY-FOR-INGREDIENTS-SUPPLIES.docx)
-        let inventoryData = [
+        const initAuth = async () => {
+            try {
+                await signInAnonymously(auth);
+            } catch(e) { console.error("Firebase Auth Error", e); }
+        };
+        
+        initAuth();
+
+        onAuthStateChanged(auth, (u) => {
+            user = u;
+            if (user) {
+                setupRealtimeListeners();
+            }
+        });
+
+        // --- Data Models / Local State ---
+        let inventoryData = [];
+        let liveOrders = [];
+        let currentTab = 'dashboard';
+        let stats = { revenue: 0, ordersToday: 0 };
+
+        // Default Seeding Data
+        const defaultInventoryData = [
             { id: 'i1', category: 'Coffee (Hot/Cold)', item: 'Coffee Beans', stock: 2.0, unit: 'Kg', threshold: 1.0 },
             { id: 'i2', category: 'Coffee (Hot/Cold)', item: 'Fresh Milk', stock: 5.0, unit: 'L', threshold: 2.0 },
             { id: 'i3', category: 'Coffee (Hot/Cold)', item: 'Condensed Milk', stock: 5, unit: 'Cans', threshold: 2 },
@@ -122,20 +171,12 @@
             { id: 'i9', category: 'Kitchen Meals', item: 'Rice', stock: 10.0, unit: 'Kg', threshold: 5.0 },
             { id: 'i10', category: 'Kitchen Meals', item: 'Pork', stock: 9.0, unit: 'Kg', threshold: 5.0 },
             { id: 'i11', category: 'Kitchen Meals', item: 'Siomai', stock: 100, unit: 'pcs', threshold: 40 },
-            { id: 'i12', category: 'Kitchen Meals', item: 'Lumpia', stock: 50, unit: 'pcs', threshold: 40 }, // Set close to threshold
+            { id: 'i12', category: 'Kitchen Meals', item: 'Lumpia', stock: 50, unit: 'pcs', threshold: 40 },
             { id: 'i13', category: 'Packaging', item: 'Cold Cups', stock: 150, unit: 'pcs', threshold: 100 },
             { id: 'i14', category: 'Packaging', item: 'Hot Cups', stock: 150, unit: 'pcs', threshold: 100 },
             { id: 'i15', category: 'Packaging', item: 'Round Paper Bowls', stock: 300, unit: 'pcs', threshold: 100 }
         ];
 
-        // 2. Orders Data (Mocking Live Online Orders)
-        let liveOrders = [
-            { id: 'ORD-8041', source: 'Online', customer: 'Juan Dela Cruz', items: ['2x Iced Latte', '1x Sisig Rice Meal'], total: 138.00, status: 'Pending', time: '10 mins ago' },
-            { id: 'ORD-8042', source: 'POS', customer: 'Walk-in', items: ['1x Hungarian', '1x Match Dalgona'], total: 99.00, status: 'Preparing', time: '5 mins ago' },
-            { id: 'ORD-8043', source: 'Online', customer: 'Maria Clara', items: ['1x Hot Chocolate', '2x Siomai (4 pcs)'], total: 85.00, status: 'Pending', time: 'Just now' }
-        ];
-
-        // 3. Products Data (Derived from Menu doc)
         const productsList = [
             { name: "Sisig", price: 60.00, category: "Rice Meals" },
             { name: "Hungarian", price: 60.00, category: "Rice Meals" },
@@ -149,20 +190,100 @@
             { name: "Coke Float", price: 39.00, category: "Soda Float" }
         ];
 
-        let currentTab = 'dashboard';
-        let stats = { revenue: 4520.50, ordersToday: 42 };
+        function setupRealtimeListeners() {
+            if(!user) return;
+            
+            // Listen to Inventory
+            const invRef = collection(db, 'artifacts', firestoreAppId, 'public', 'data', 'inventory');
+            onSnapshot(invRef, (snapshot) => {
+                if (snapshot.empty && inventoryData.length === 0) {
+                    // Seed database if empty
+                    defaultInventoryData.forEach(item => {
+                        setDoc(doc(invRef, item.id), item);
+                    });
+                } else {
+                    inventoryData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    if (currentTab === 'inventory' || currentTab === 'dashboard') switchTab(currentTab);
+                    checkInventoryLevels(false);
+                }
+            }, (error) => console.error("Error with Inventory listener", error));
 
-        // --- Initialization ---
-        document.addEventListener('DOMContentLoaded', () => {
-            switchTab('dashboard');
-            checkInventoryLevels(false); // Initial check without toast spam
-        });
+            // Listen to Orders
+            const ordersRef = collection(db, 'artifacts', firestoreAppId, 'public', 'data', 'orders');
+            onSnapshot(ordersRef, (snapshot) => {
+                liveOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                liveOrders.sort((a,b) => b.createdAt - a.createdAt); // Sort newest first
+                
+                // Calculate today's pending revenue
+                stats.revenue = liveOrders.reduce((sum, order) => sum + order.total, 0);
 
-        // --- Navigation Logic ---
+                if (currentTab === 'orders' || currentTab === 'dashboard') switchTab(currentTab);
+                updateBadges();
+            }, (error) => console.error("Error with Orders listener", error));
+        }
+
+        // --- UI & Cloud Actions ---
+
+        window.switchTab = switchTab;
+        window.updateOrderStatus = async function(id, newStatus) {
+            if (!user) return;
+            const orderDoc = doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'orders', id);
+            await updateDoc(orderDoc, { status: newStatus });
+        };
+        
+        window.markOrderDone = async function(id) {
+            if (!user) return;
+            // Delete order from active queue when complete
+            await deleteDoc(doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'orders', id));
+            stats.ordersToday += 1;
+            showToast('Order marked as Completed!', 'success');
+        };
+        
+        window.simulateOnlineOrder = async function() {
+            if (!user) return;
+            const newId = 'ORD-' + Math.floor(Math.random() * 9000 + 1000);
+            const newOrder = {
+                source: 'Online', customer: 'New Web Customer', 
+                items: ['1x Vietnamese Coffee', '2x Lumpia Shanghai'], 
+                total: 59.00, status: 'Pending', time: 'Just now',
+                createdAt: Date.now()
+            };
+
+            await setDoc(doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'orders', newId), newOrder);
+            await deductInventory('Coffee Beans', 0.015);
+            await deductInventory('Ice', 0.07);
+            await deductInventory('Cold Cups', 1);
+            await deductInventory('Lumpia', 2);
+            await deductInventory('Round Paper Bowls', 1);
+
+            showToast(`New Online Order received: ${newId}`, 'info');
+        };
+        
+        window.restockItem = async function(id) {
+            if (!user) return;
+            const item = inventoryData.find(i => i.id === id);
+            if(item) {
+                const newStock = item.stock + (item.threshold * 5);
+                await updateDoc(doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'inventory', item.id), { stock: newStock });
+                showToast(`Restocked ${item.item}. New level: ${newStock} ${item.unit}`, 'success');
+            }
+        };
+
+        // Internal helpers
+        async function deductInventory(itemName, amount) {
+            const item = inventoryData.find(i => i.item === itemName);
+            if(item) {
+                const newStock = Math.max(0, parseFloat((item.stock - amount).toFixed(3)));
+                await updateDoc(doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'inventory', item.id), { stock: newStock });
+                if (newStock <= item.threshold && item.stock > item.threshold) {
+                    showToast(`Alert: ${item.item} is running low! (${newStock} ${item.unit} left)`, 'warning');
+                }
+            }
+        }
+
         function switchTab(tab) {
             currentTab = tab;
             
-            // Update Sidebar Styling
             document.querySelectorAll('#nav-links button').forEach(btn => {
                 btn.classList.remove('bg-coffee-800', 'text-white');
                 btn.classList.add('text-coffee-200');
@@ -173,9 +294,8 @@
                 activeBtn.classList.add('bg-coffee-800', 'text-white');
             }
 
-            // Render View
             const viewContainer = document.getElementById('main-view');
-            viewContainer.innerHTML = ''; // Clear
+            viewContainer.innerHTML = '';
 
             if(tab === 'dashboard') viewContainer.innerHTML = getDashboardHTML();
             else if(tab === 'orders') viewContainer.innerHTML = getOrdersHTML();
@@ -186,7 +306,6 @@
         }
 
         // --- HTML Generators for Views ---
-
         function getDashboardHTML() {
             const lowStockItems = inventoryData.filter(i => i.stock <= i.threshold);
             
@@ -209,12 +328,11 @@
                 <div class="fade-in max-w-5xl mx-auto">
                     <h1 class="text-2xl font-bold text-gray-800 mb-6">Overview</h1>
                     
-                    <!-- Stats Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center gap-4">
                             <div class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-2xl"><i class="ph ph-currency-circle-dollar"></i></div>
                             <div>
-                                <p class="text-sm text-gray-500 font-medium">Sales Today</p>
+                                <p class="text-sm text-gray-500 font-medium">Active Order Revenue</p>
                                 <p class="text-2xl font-bold text-gray-800">₱${stats.revenue.toFixed(2)}</p>
                             </div>
                         </div>
@@ -234,9 +352,7 @@
                         </div>
                     </div>
 
-                    <!-- Layout Grid -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <!-- Inventory Alerts -->
                         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:col-span-2">
                             <div class="flex justify-between items-center mb-4">
                                 <h2 class="font-bold text-lg text-gray-800">Inventory Alerts</h2>
@@ -246,7 +362,6 @@
                             </div>
                         </div>
                         
-                        <!-- Quick Actions -->
                         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                             <h2 class="font-bold text-lg text-gray-800 mb-4">Quick Actions</h2>
                             <div class="space-y-3">
@@ -257,7 +372,7 @@
                                     <i class="ph ph-list-plus"></i> Manage Menu
                                 </button>
                             </div>
-                            <p class="text-xs text-gray-400 mt-4 text-center">Simulating an order will deduct items from inventory and trigger alerts if stock goes below threshold.</p>
+                            <p class="text-xs text-gray-400 mt-4 text-center">Simulating an order will deduct items from Firestore inventory and trigger alerts if stock drops.</p>
                         </div>
                     </div>
                 </div>
@@ -267,7 +382,7 @@
         function getOrdersHTML() {
             if(liveOrders.length === 0) {
                 return `
-                    <div class="fade-in max-w-5xl mx-auto h-full flex flex-col items-center justify-center text-gray-400">
+                    <div class="fade-in max-w-5xl mx-auto h-full flex flex-col items-center justify-center text-gray-400 mt-20">
                         <i class="ph ph-check-circle text-6xl mb-4 opacity-50"></i>
                         <h2 class="text-xl font-bold text-gray-600">All caught up!</h2>
                         <p class="mb-6">No pending orders at the moment.</p>
@@ -283,7 +398,7 @@
                         <div class="flex items-center gap-3 mb-2">
                             <span class="font-bold text-gray-800">${order.id}</span>
                             <span class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded font-bold">${order.source}</span>
-                            <span class="text-xs text-gray-400"><i class="ph ph-clock"></i> ${order.time}</span>
+                            <span class="text-xs text-gray-400"><i class="ph ph-clock"></i> ${new Date(order.createdAt).toLocaleTimeString()}</span>
                         </div>
                         <p class="text-sm font-bold text-gray-700 mb-2"><i class="ph ph-user"></i> ${order.customer}</p>
                         <ul class="text-sm text-gray-600 space-y-1 mb-3">
@@ -306,7 +421,7 @@
             return `
                 <div class="fade-in max-w-4xl mx-auto">
                     <div class="flex justify-between items-center mb-6">
-                        <h1 class="text-2xl font-bold text-gray-800">Live Orders</h1>
+                        <h1 class="text-2xl font-bold text-gray-800">Live Orders (Cloud Synced)</h1>
                         <button onclick="simulateOnlineOrder()" class="text-sm font-medium text-coffee-600 hover:text-coffee-800 flex items-center gap-1"><i class="ph ph-plus-circle"></i> Test Order</button>
                     </div>
                     <div class="space-y-4">
@@ -340,7 +455,7 @@
             return `
                 <div class="fade-in max-w-6xl mx-auto">
                     <div class="flex justify-between items-center mb-6">
-                        <h1 class="text-2xl font-bold text-gray-800">Ingredient Inventory</h1>
+                        <h1 class="text-2xl font-bold text-gray-800">Ingredient Inventory (Cloud Synced)</h1>
                     </div>
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                         <div class="overflow-x-auto">
@@ -399,8 +514,6 @@
             `;
         }
 
-        // --- Logic & Actions ---
-
         function updateBadges() {
             const orderBadge = document.getElementById('nav-order-count');
             if(liveOrders.length > 0) {
@@ -420,60 +533,8 @@
             }
         }
 
-        function updateOrderStatus(id, newStatus) {
-            const order = liveOrders.find(o => o.id === id);
-            if(order) order.status = newStatus;
-            if(currentTab === 'orders') switchTab('orders');
-        }
-
-        function markOrderDone(id) {
-            liveOrders = liveOrders.filter(o => o.id !== id);
-            stats.ordersToday += 1;
-            showToast('Order marked as Completed!', 'success');
-            
-            if(currentTab === 'orders') switchTab('orders');
-            else updateBadges();
-        }
-
-        // --- Inventory Deduction Simulation System ---
-        function simulateOnlineOrder() {
-            // Create a fake order
-            const newId = 'ORD-' + Math.floor(Math.random() * 9000 + 1000);
-            liveOrders.unshift({
-                id: newId, source: 'Online', customer: 'New Web Customer', 
-                items: ['1x Vietnamese Coffee', '2x Lumpia Shanghai'], 
-                total: 59.00, status: 'Pending', time: 'Just now'
-            });
-
-            // Simulate Deducting Inventory from the doc data
-            // Vietnamese Coffee uses: Coffee Beans (0.013 Kg), Ice (0.06 Kg), Cold Cup (1), Lid (1)
-            deductInventory('Coffee Beans', 0.015);
-            deductInventory('Ice', 0.07);
-            deductInventory('Cold Cups', 1);
-            
-            // 2x Lumpia uses: Lumpia (2 pcs), Paper Bowl (1)
-            deductInventory('Lumpia', 2);
-            deductInventory('Round Paper Bowls', 1);
-
-            stats.revenue += 59.00;
-
-            showToast(`New Online Order received: ${newId}`, 'info');
-            
-            // Re-render current view to show changes
-            switchTab(currentTab);
-            checkInventoryLevels(true); 
-        }
-
-        function deductInventory(itemName, amount) {
-            const item = inventoryData.find(i => i.item === itemName);
-            if(item) {
-                item.stock = Math.max(0, parseFloat((item.stock - amount).toFixed(3)));
-            }
-        }
-
         function checkInventoryLevels(showToasts = false) {
             inventoryData.forEach(item => {
-                // If it just dropped below threshold and is close to it (to avoid spamming already empty items)
                 if (item.stock <= item.threshold && item.stock > (item.threshold - 2) && showToasts) {
                     showToast(`Alert: ${item.item} is running low! (${item.stock} ${item.unit} left)`, 'warning');
                 }
@@ -481,17 +542,6 @@
             updateBadges();
         }
 
-        function restockItem(id) {
-            const item = inventoryData.find(i => i.id === id);
-            if(item) {
-                // Add an arbitrary restock amount just for demo
-                item.stock += (item.threshold * 5);
-                showToast(`Restocked ${item.item}. New level: ${item.stock} ${item.unit}`, 'success');
-                switchTab(currentTab);
-            }
-        }
-
-        // --- UI Utilities ---
         function showToast(msg, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -513,6 +563,10 @@
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            switchTab('dashboard');
+        });
     </script>
 </body>
 </html>
