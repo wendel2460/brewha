@@ -25,17 +25,10 @@
                     },
                     colors: {
                         coffee: {
-                            50: '#fdf8f4',
-                            100: '#f8efe6',
-                            200: '#eedbc6',
-                            300: '#e1c0a0',
-                            400: '#d19e72',
-                            500: '#c5814e',
-                            600: '#b86a3d',
-                            700: '#9a5334',
-                            800: '#7e452e',
-                            900: '#663928',
-                            950: '#361c12',
+                            50: '#fdf8f4', 100: '#f8efe6', 200: '#eedbc6',
+                            300: '#e1c0a0', 400: '#d19e72', 500: '#c5814e',
+                            600: '#b86a3d', 700: '#9a5334', 800: '#7e452e',
+                            900: '#663928', 950: '#361c12',
                         }
                     },
                     animation: {
@@ -58,7 +51,6 @@
     </script>
     
     <style>
-        /* Custom scrollbar for an elegant feel */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #fdf8f4; }
         ::-webkit-scrollbar-thumb { background: #d19e72; border-radius: 4px; }
@@ -78,7 +70,6 @@
             border-bottom: 1px solid rgba(209, 158, 114, 0.2);
         }
         
-        /* Hide scrollbar for category tabs */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
@@ -94,9 +85,9 @@
                     <span class="font-serif font-bold text-2xl tracking-wide text-coffee-900">Brewha</span>
                 </div>
                 
-                <div class="hidden md:flex space-x-8">
+                <div class="hidden md:flex space-x-8 items-center">
                     <a href="#menu" class="text-coffee-800 hover:text-coffee-500 transition-colors font-medium">Menu</a>
-                    <a href="#about" class="text-coffee-800 hover:text-coffee-500 transition-colors font-medium">About</a>
+                    <button onclick="window.location.href='index.html'" class="text-sm border border-coffee-300 text-coffee-800 px-4 py-1.5 rounded-full hover:bg-coffee-100 transition-colors">Log out</button>
                 </div>
 
                 <div class="flex items-center">
@@ -136,14 +127,12 @@
                 <p class="text-coffee-600">Explore our delicious selection of meals and drinks.</p>
             </div>
 
-            <!-- Category Tabs -->
             <div class="mb-12 overflow-x-auto no-scrollbar pb-4">
                 <div id="category-tabs" class="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-3 w-max md:w-auto mx-auto">
                     <!-- Tabs injected by JS -->
                 </div>
             </div>
 
-            <!-- Products Grid -->
             <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                 <!-- Products injected by JS -->
             </div>
@@ -216,45 +205,11 @@
         </div>
     </div>
 
-    <!-- Interactive Toast Notification -->
-    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
-
-    <!-- Checkout Modal Pop-up -->
-    <div id="checkout-modal" class="fixed inset-0 bg-coffee-950/80 backdrop-blur-md z-[60] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
-        <div class="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl transform scale-95 transition-transform duration-300" id="checkout-content">
-            <div class="text-center mb-8">
-                <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="ph ph-check-circle text-4xl"></i>
-                </div>
-                <h3 class="text-3xl font-serif text-coffee-900 mb-2">Order Confirmed!</h3>
-                <p class="text-coffee-600">Your delicious order is being prepared.</p>
-            </div>
-            <div class="bg-coffee-50 rounded-xl p-5 mb-6 text-sm text-coffee-800">
-                <div class="flex justify-between mb-3 border-b border-coffee-200 pb-2">
-                    <span>Order ID</span>
-                    <span class="font-bold text-coffee-900" id="order-number"></span>
-                </div>
-                <div class="flex justify-between mb-3">
-                    <span>Status</span>
-                    <span class="font-medium text-amber-600 flex items-center gap-1"><i class="ph ph-clock"></i> Preparing</span>
-                </div>
-                <div class="flex justify-between font-bold pt-2 border-t border-coffee-200 mt-2 text-lg text-coffee-950">
-                    <span>Total Paid</span>
-                    <span id="checkout-paid-amount"></span>
-                </div>
-            </div>
-            <button onclick="closeCheckout()" class="w-full bg-coffee-600 text-white py-3 rounded-xl font-medium hover:bg-coffee-500 transition-colors">
-                Close & Return
-            </button>
-        </div>
-    </div>
-
     <!-- Product Details & Add-ons Modal -->
     <div id="product-modal" class="fixed inset-0 bg-coffee-950/80 backdrop-blur-md z-[70] hidden flex items-end md:items-center justify-center p-0 md:p-4 opacity-0 transition-opacity duration-300">
         <div class="absolute inset-0" onclick="closeProductModal()"></div>
         <div class="bg-white w-full md:max-w-lg md:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] md:max-h-[90vh] transform translate-y-full md:scale-95 transition-all duration-300 relative z-10" id="pm-content">
             
-            <!-- Image Header -->
             <div class="relative h-64 md:h-72 w-full bg-coffee-100 flex-shrink-0">
                 <img id="pm-image" src="" class="w-full h-full object-cover" alt="">
                 <button onclick="closeProductModal()" class="absolute top-4 right-4 bg-white/80 backdrop-blur text-coffee-900 p-2 rounded-full shadow hover:bg-white transition-colors">
@@ -262,7 +217,6 @@
                 </button>
             </div>
 
-            <!-- Scrollable Content -->
             <div class="p-6 overflow-y-auto flex-1 no-scrollbar pb-24">
                 <div class="mb-6">
                     <div class="flex justify-between items-start gap-4">
@@ -272,7 +226,6 @@
                     <p id="pm-desc" class="text-coffee-500 text-sm mt-1 uppercase tracking-wider font-bold"></p>
                 </div>
 
-                <!-- Add-ons Section -->
                 <div id="pm-addons-container" class="hidden">
                     <div class="flex items-center gap-2 mb-4 border-b border-coffee-100 pb-2">
                         <i class="ph ph-plus-circle text-xl text-coffee-500"></i>
@@ -284,7 +237,6 @@
                 </div>
             </div>
 
-            <!-- Fixed Bottom Action -->
             <div class="absolute bottom-0 w-full p-4 border-t border-coffee-100 bg-white/90 backdrop-blur-md shadow-[0_-4px_15px_rgb(0,0,0,0.05)]">
                 <button onclick="confirmAddToCart()" class="w-full bg-coffee-900 text-white py-4 rounded-xl font-medium hover:bg-coffee-800 transition-transform active:scale-95 shadow-md flex justify-between items-center px-6">
                     <span class="flex items-center gap-2"><i class="ph ph-shopping-bag"></i> Add to Order</span>
@@ -294,10 +246,102 @@
         </div>
     </div>
 
+    <!-- Checkout Modal Pop-up -->
+    <div id="checkout-modal" class="fixed inset-0 bg-coffee-950/80 backdrop-blur-md z-[60] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl transform scale-95 transition-transform duration-300" id="checkout-content">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="ph ph-check-circle text-4xl"></i>
+                </div>
+                <h3 class="text-3xl font-serif text-coffee-900 mb-2">Order Confirmed!</h3>
+                <p class="text-coffee-600">Your delicious order has been sent to the kitchen.</p>
+            </div>
+            <div class="bg-coffee-50 rounded-xl p-5 mb-6 text-sm text-coffee-800">
+                <div class="flex justify-between mb-3 border-b border-coffee-200 pb-2">
+                    <span>Order ID</span>
+                    <span class="font-bold text-coffee-900" id="order-number"></span>
+                </div>
+                <div class="flex justify-between mb-3">
+                    <span>Status</span>
+                    <span class="font-medium text-amber-600 flex items-center gap-1"><i class="ph ph-clock"></i> Pending</span>
+                </div>
+                <div class="flex justify-between font-bold pt-2 border-t border-coffee-200 mt-2 text-lg text-coffee-950">
+                    <span>Total</span>
+                    <span id="checkout-paid-amount"></span>
+                </div>
+            </div>
+            <button onclick="closeCheckout()" class="w-full bg-coffee-600 text-white py-3 rounded-xl font-medium hover:bg-coffee-500 transition-colors">
+                Close & Return
+            </button>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- Firebase Connection for Customer Menu -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDsap0Yqqlr5ghuhXJuCbItWCQRNXKJMP8",
+            authDomain: "brewha-cafe.firebaseapp.com",
+            projectId: "brewha-cafe",
+            storageBucket: "brewha-cafe.firebasestorage.app",
+            messagingSenderId: "831922440831",
+            appId: "1:831922440831:web:03c44a4598d00c6c0c4d4a",
+            measurementId: "G-83SR0EB5EE"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const firestoreAppId = 'brewha-cafe';
+
+        let user = null;
+        const initAuth = async () => {
+            try { await signInAnonymously(auth); } 
+            catch(e) { console.error(e); }
+        };
+        initAuth();
+        onAuthStateChanged(auth, (u) => { user = u; });
+
+        window.submitOrderToFirebase = async function(orderTotal, cartItems) {
+            if (!user) return null;
+
+            const orderNumber = 'BRW-' + Math.floor(Math.random() * 90000 + 10000);
+            
+            const formattedItems = cartItems.map(item => {
+                let name = `${item.quantity}x ${item.name}`;
+                if (item.addons && item.addons.length > 0) {
+                    name += ` (+ ${item.addons.map(a => a.name).join(', ')})`;
+                }
+                return name;
+            });
+
+            const newOrder = {
+                source: 'Online',
+                customer: 'Online Guest', 
+                items: formattedItems,
+                total: orderTotal,
+                status: 'Pending',
+                time: 'Just now',
+                createdAt: Date.now()
+            };
+
+            try {
+                await setDoc(doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'orders', orderNumber), newOrder);
+                return orderNumber;
+            } catch(e) {
+                console.error("Error saving order:", e);
+                return orderNumber;
+            }
+        };
+    </script>
+
     <script>
-        // --- Full Menu Data ---
         const rawMenu = [
-            // A LA CARTE
             { name: "Fried Egg", price: 15.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1525916801717-94ec18db35b1?auto=format&fit=crop&w=400&q=80" },
             { name: "Siomai (4 pcs)", price: 25.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=400&q=80" },
             { name: "Lumpia Shanghai", price: 10.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=400&q=80" },
@@ -306,7 +350,6 @@
             { name: "Rice", price: 15.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=400&q=80" },
             { name: "Dinuguan", price: 50.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1548943487-a2e4e43b4850?auto=format&fit=crop&w=400&q=80" },
             { name: "Puto", price: 10.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1600289031464-74d374b64991?auto=format&fit=crop&w=400&q=80" },
-            // RICE MEALS
             { name: "Hungarian", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=400&q=80" },
             { name: "Pork Katsu", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1578160112054-954a67602b88?auto=format&fit=crop&w=400&q=80" },
             { name: "Chicken Adobo", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=400&q=80" },
@@ -315,26 +358,21 @@
             { name: "Lumpia Shanghai (3 pcs)", price: 50.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=400&q=80" },
             { name: "Hotdog (2 pcs)", price: 40.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1541214113241-21578d2d9b62?auto=format&fit=crop&w=400&q=80" },
             { name: "Siomai (4 pcs) Meal", price: 35.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=400&q=80" },
-            // HOT DRINKS
             { name: "Brewed Coffee", price: 25.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=400&q=80" },
             { name: "Café Latte", price: 35.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?auto=format&fit=crop&w=400&q=80" },
             { name: "Hot Chocolate", price: 35.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?auto=format&fit=crop&w=400&q=80" },
-            // ICED COFFEE
             { name: "Vietnamese Coffee", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=400&q=80" },
             { name: "Latte", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=400&q=80" },
             { name: "Greek Frappe", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=400&q=80" },
             { name: "Café Mocha", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=400&q=80" },
-            // ICED AMERICANO
             { name: "Honey-Lemon", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1527661591475-527312dd65f5?auto=format&fit=crop&w=400&q=80" },
             { name: "Lychee-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=400&q=80" },
             { name: "Orange-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1600271886742-f049cd451b08?auto=format&fit=crop&w=400&q=80" },
             { name: "Coconut-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1595981267035-7b04d9b4b005?auto=format&fit=crop&w=400&q=80" },
-            // NON-COFFEE
             { name: "Iced Chocolate", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1546548970-71785318a306?auto=format&fit=crop&w=400&q=80" },
             { name: "Choco Float", price: 45.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1553177595-4de2bb0842b9?auto=format&fit=crop&w=400&q=80" },
             { name: "Milky Strawberry", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1553787762-b5f528158c9c?auto=format&fit=crop&w=400&q=80" },
             { name: "Matcha Dalgona", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&w=400&q=80" },
-            // FRUIT SODA
             { name: "Strawberry", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80" },
             { name: "Four Seasons", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400&q=80" },
             { name: "Blue Lemonade", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=400&q=80" },
@@ -342,17 +380,12 @@
             { name: "Blueberry", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1597403491447-3ab08f8e44dc?auto=format&fit=crop&w=400&q=80" },
             { name: "Green Apple", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80" },
             { name: "Orange", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1600271886742-f049cd451b08?auto=format&fit=crop&w=400&q=80" },
-            // SODA FLOAT
             { name: "Coke Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1628873041695-095562095ce9?auto=format&fit=crop&w=400&q=80" },
             { name: "Strawberry Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&w=400&q=80" },
             { name: "Blueberry Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1597403491447-3ab08f8e44dc?auto=format&fit=crop&w=400&q=80" }
         ];
 
-        // Assign IDs and prepare final product array
-        const products = rawMenu.map((item, index) => ({
-            id: index + 1,
-            ...item
-        }));
+        const products = rawMenu.map((item, index) => ({ id: index + 1, ...item }));
 
         const addOnsData = {
             coffee: [
@@ -409,7 +442,6 @@
         let currentModalProduct = null;
         let currentSelectedAddons = [];
 
-        // --- Init ---
         document.addEventListener('DOMContentLoaded', () => {
             renderTabs();
             renderProducts();
@@ -421,7 +453,6 @@
             });
         });
 
-        // --- Functions ---
         function renderTabs() {
             const tabsContainer = document.getElementById('category-tabs');
             tabsContainer.innerHTML = '';
@@ -444,8 +475,8 @@
 
         function setCategory(category) {
             activeCategory = category;
-            renderTabs(); // Update active styles
-            renderProducts(); // Filter grid
+            renderTabs();
+            renderProducts();
         }
 
         function renderProducts() {
@@ -457,14 +488,13 @@
                 : products.filter(p => p.category === activeCategory);
 
             filteredProducts.forEach((product, index) => {
-                // Determine layout tag based on category
                 let tagColor = 'bg-white/90 text-coffee-900';
                 if(product.category.includes('Coffee') || product.category.includes('Hot')) tagColor = 'bg-coffee-900/90 text-white';
                 else if(product.category.includes('Soda')) tagColor = 'bg-amber-500/90 text-white';
 
                 const card = document.createElement('div');
                 card.className = `bg-white rounded-2xl overflow-hidden border border-coffee-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col opacity-0 animate-pop-in`;
-                card.style.animationDelay = `${(index % 10) * 50}ms`; // Staggered fade in
+                card.style.animationDelay = `${(index % 10) * 50}ms`;
 
                 card.innerHTML = `
                     <div class="relative h-48 overflow-hidden bg-coffee-50 cursor-pointer group" onclick="openProductModal(${product.id})">
@@ -505,7 +535,6 @@
             const modal = document.getElementById('product-modal');
             const content = document.getElementById('pm-content');
             
-            // Populate Modal
             document.getElementById('pm-image').src = currentModalProduct.image;
             document.getElementById('pm-name').textContent = currentModalProduct.name;
             document.getElementById('pm-desc').textContent = currentModalProduct.category;
@@ -535,7 +564,6 @@
 
             updateModalTotal();
 
-            // Show Modal
             modal.classList.remove('hidden');
             requestAnimationFrame(() => {
                 modal.classList.remove('opacity-0');
@@ -577,7 +605,6 @@
         function confirmAddToCart() {
             if (!currentModalProduct) return;
 
-            // Generate unique ID based on product and sorted addons so identical orders stack
             const addonIds = currentSelectedAddons.map(a => a.id).sort().join('-');
             const cartItemId = `${currentModalProduct.id}-${addonIds}`;
             const addonsTotal = currentSelectedAddons.reduce((sum, a) => sum + a.price, 0);
@@ -597,8 +624,6 @@
             }
 
             updateCartUI();
-            
-            // Pop-up animation toast indicating it was added
             showToast(`Added ${currentModalProduct.name} to order!`);
             
             const badge = document.getElementById('cart-badge');
@@ -630,13 +655,11 @@
             const totalEl = document.getElementById('cart-total');
             const checkoutBtn = document.getElementById('checkout-btn');
 
-            // Update badge
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
             badge.textContent = totalItems;
             if (totalItems > 0) badge.classList.replace('scale-0', 'scale-100');
             else badge.classList.replace('scale-100', 'scale-0');
 
-            // Update items list
             if (cart.length === 0) {
                 emptyMsg.classList.remove('hidden');
                 Array.from(cartItemsContainer.children).forEach(child => {
@@ -684,7 +707,6 @@
                 checkoutBtn.disabled = false;
             }
 
-            // Calculations
             const subtotal = cart.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
             
             subtotalEl.textContent = `₱${subtotal.toFixed(2)}`;
@@ -733,12 +755,19 @@
             }, 2500);
         }
 
-        function openCheckout() {
+        async function openCheckout() {
             if (cart.length === 0) return;
             
             const total = cart.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
             
-            document.getElementById('order-number').textContent = 'BRW-' + Math.floor(Math.random() * 90000 + 10000);
+            const btn = document.getElementById('checkout-btn');
+            const originalBtnHtml = btn.innerHTML;
+            btn.innerHTML = '<span>Processing...</span>';
+            btn.disabled = true;
+
+            const orderNumber = await window.submitOrderToFirebase(total, cart);
+            
+            document.getElementById('order-number').textContent = orderNumber || 'BRW-' + Math.floor(Math.random() * 90000 + 10000);
             document.getElementById('checkout-paid-amount').textContent = `₱${total.toFixed(2)}`;
             
             toggleCart();
@@ -757,6 +786,9 @@
             
             cart = [];
             updateCartUI();
+            
+            btn.innerHTML = originalBtnHtml;
+            btn.disabled = false;
         }
 
         function closeCheckout() {
