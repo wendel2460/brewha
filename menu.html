@@ -214,33 +214,33 @@
         <!-- Close overlay -->
         <div class="absolute inset-0" onclick="closeProductModal()"></div>
         
-        <!-- Modal Container (Strict 90vh max height to prevent button push-off) -->
-        <div class="bg-white w-full md:max-w-4xl rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row h-[90vh] md:h-[80vh] transform scale-95 transition-all duration-300 relative z-10" id="pm-content">
+        <!-- Modal Container: Fixed max height 85vh to guarantee footer visibility -->
+        <div class="bg-white w-full md:max-w-4xl rounded-2xl shadow-2xl flex flex-col md:flex-row h-[85vh] overflow-hidden transform scale-95 transition-all duration-300 relative z-10" id="pm-content">
             
-            <!-- Left Side: Image (Shrinks on mobile, full height on desktop) -->
-            <div class="relative h-48 md:h-full md:w-1/2 bg-coffee-100 flex-shrink-0">
+            <!-- Left Side: Image (30% height on mobile, 50% width full height on desktop) -->
+            <div class="relative h-[30%] md:h-full md:w-1/2 bg-coffee-100 flex-shrink-0">
                 <img id="pm-image" src="" class="w-full h-full object-cover" alt="">
-                <button onclick="closeProductModal()" class="absolute top-4 right-4 md:hidden bg-white/80 backdrop-blur text-coffee-900 p-2 rounded-full shadow hover:bg-white transition-colors z-20">
+                <button onclick="closeProductModal()" class="absolute top-3 right-3 md:hidden bg-white/90 backdrop-blur text-coffee-900 w-8 h-8 flex items-center justify-center rounded-full shadow z-20">
                     <i class="ph ph-x font-bold"></i>
                 </button>
             </div>
 
-            <!-- Right Side: Fixed Layout -->
-            <div class="flex-1 flex flex-col md:w-1/2 relative min-h-0 bg-white">
+            <!-- Right Side: Flex Container for Content & Anchored Button -->
+            <div class="flex-1 flex flex-col md:w-1/2 relative bg-white min-h-0">
                 
                 <!-- Desktop Close Button -->
-                <button onclick="closeProductModal()" class="hidden md:flex absolute top-4 right-4 bg-gray-100 text-gray-500 hover:text-coffee-900 hover:bg-gray-200 p-2 rounded-full shadow-sm transition-colors z-20">
+                <button onclick="closeProductModal()" class="hidden md:flex absolute top-4 right-4 bg-gray-100 text-gray-500 hover:text-coffee-900 hover:bg-gray-200 w-8 h-8 items-center justify-center rounded-full shadow-sm transition-colors z-20">
                     <i class="ph ph-x font-bold"></i>
                 </button>
 
                 <!-- Scrollable Details & Addons Area -->
-                <div class="p-6 md:p-8 overflow-y-auto flex-1 no-scrollbar">
+                <div class="flex-1 overflow-y-auto p-5 md:p-8 no-scrollbar pb-6">
                     <div class="mb-6 md:pr-10">
                         <div class="flex justify-between items-start gap-4 flex-col sm:flex-row">
-                            <h3 id="pm-name" class="text-3xl font-serif font-bold text-coffee-950 leading-tight"></h3>
-                            <span id="pm-price" class="text-2xl font-bold text-coffee-600 whitespace-nowrap"></span>
+                            <h3 id="pm-name" class="text-2xl md:text-3xl font-serif font-bold text-coffee-950 leading-tight"></h3>
+                            <span id="pm-price" class="text-xl md:text-2xl font-bold text-coffee-600 whitespace-nowrap"></span>
                         </div>
-                        <p id="pm-desc" class="text-coffee-500 text-sm mt-2 uppercase tracking-wider font-bold"></p>
+                        <p id="pm-desc" class="text-coffee-500 text-xs mt-2 uppercase tracking-wider font-bold"></p>
                     </div>
 
                     <div id="pm-addons-container" class="hidden">
@@ -248,16 +248,16 @@
                             <i class="ph ph-plus-circle text-xl text-coffee-500"></i>
                             <h4 class="font-bold text-coffee-900">Would you like to add some extras?</h4>
                         </div>
-                        <div id="pm-addons-list" class="space-y-3 pb-4">
+                        <div id="pm-addons-list" class="space-y-2">
                             <!-- Checkboxes injected by JS -->
                         </div>
                     </div>
                 </div>
 
                 <!-- Fixed Bottom Action Bar -->
-                <div class="w-full p-4 border-t border-coffee-100 bg-white flex-shrink-0 shadow-[0_-4px_15px_rgb(0,0,0,0.05)]">
-                    <button onclick="confirmAddToCart()" class="w-full bg-coffee-900 text-white py-4 rounded-xl font-medium hover:bg-coffee-800 transition-transform active:scale-95 shadow-md flex justify-between items-center px-6">
-                        <span class="flex items-center gap-2"><i class="ph ph-shopping-bag"></i> Add to Order</span>
+                <div class="w-full p-4 border-t border-coffee-100 bg-gray-50 flex-shrink-0 shadow-[0_-4px_10px_rgb(0,0,0,0.03)]">
+                    <button onclick="confirmAddToCart()" class="w-full bg-coffee-900 text-white py-3.5 rounded-xl font-bold hover:bg-coffee-800 transition-transform active:scale-95 shadow-md flex justify-between items-center px-6">
+                        <span class="flex items-center gap-2"><i class="ph ph-shopping-bag text-lg"></i> Add to Order</span>
                         <span id="pm-btn-price" class="font-bold text-lg"></span>
                     </button>
                 </div>
@@ -270,7 +270,7 @@
     <div id="history-modal" class="fixed inset-0 bg-coffee-950/80 backdrop-blur-md z-[60] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
         <div class="absolute inset-0" onclick="closeCustomerHistory()"></div>
         <div class="bg-gray-50 rounded-2xl max-w-2xl w-full p-0 shadow-2xl flex flex-col h-[85vh] transform scale-95 transition-transform duration-300 relative z-10" id="history-content">
-            <div class="bg-white px-6 py-5 border-b border-gray-200 flex justify-between items-center rounded-t-2xl">
+            <div class="bg-white px-6 py-5 border-b border-gray-200 flex justify-between items-center rounded-t-2xl flex-shrink-0">
                 <div>
                     <h2 class="text-2xl font-serif font-bold text-coffee-900 flex items-center gap-2">
                         <i class="ph ph-clock-counter-clockwise text-coffee-600"></i> My Orders
@@ -501,6 +501,16 @@
             ]
         };
 
+        // Explicit dependency mapping: if the mapped value is sold out, the Add-on is sold out.
+        const addonDependencies = {
+            "Extra Rice": "Rice",
+            "Extra Siomai": "Siomai (4 pcs)",
+            "Extra Lumpia": "Lumpia Shanghai",
+            "Extra Lumpia Shanghai": "Lumpia Shanghai",
+            "Extra Adobo Topping": "Adobo",
+            "Extra Sisig Topping": "Sisig"
+        };
+
         const categories = ["All", "Rice Meals", "A La Carte", "Hot Drinks", "Iced Coffee", "Iced Americano", "Non-Coffee", "Fruit Soda", "Soda Float"];
         
         let cart = [];
@@ -581,15 +591,16 @@
             if (window.unavailableIds && window.unavailableIds.includes(id)) return false;
 
             // 2. Disabled because a related Base Product is Disabled (for Add-ons)
-            // e.g. "Extra Sisig Topping" is disabled if "Sisig" is manually disabled.
-            if (name) {
-                const relatedProduct = products.find(p => name.toLowerCase().includes(p.name.toLowerCase()) && p.name.length > 3);
-                if (relatedProduct && window.unavailableIds && window.unavailableIds.includes(relatedProduct.id)) {
+            // Checks explicit mapping logic, preventing add-on bypass
+            if (addonDependencies[name]) {
+                const baseProd = products.find(p => p.name === addonDependencies[name]);
+                // Recursively check if the base product is disabled
+                if (baseProd && !window.isAvailable(baseProd.id, baseProd.name)) {
                     return false;
                 }
             }
 
-            // 3. Out of Stock Check
+            // 3. Out of Stock Check (Inventory Deduction Logic)
             if (!window.inventoryData || window.inventoryData.length === 0) return true;
 
             const deductions = getDeductions(name);
@@ -634,10 +645,13 @@
                 else if(product.category.includes('Soda')) tagColor = 'bg-amber-500/90 text-white';
 
                 const card = document.createElement('div');
-                // Allow entire card to be clicked to open the modal
+                // The outer card is fully clickable if available
                 card.className = `bg-white rounded-2xl overflow-hidden border border-coffee-100 shadow-sm transition-all duration-300 flex flex-col opacity-0 animate-pop-in ${!available ? 'opacity-60 grayscale cursor-not-allowed' : 'hover:shadow-xl cursor-pointer'}`;
                 card.style.animationDelay = `${(index % 10) * 50}ms`;
-                if (available) card.onclick = () => openProductModal(product.id);
+                
+                if (available) {
+                    card.onclick = function() { window.openProductModal(product.id); };
+                }
 
                 card.innerHTML = `
                     <div class="relative h-48 overflow-hidden bg-coffee-50 group">
@@ -651,7 +665,7 @@
                             <span class="text-lg font-bold ${available ? 'text-coffee-600' : 'text-red-500'} whitespace-nowrap">${available ? `₱${product.price.toFixed(2)}` : 'N/A'}</span>
                         </div>
                         <div class="mt-auto relative z-30">
-                            <!-- Pointer-events-none ensures the click bubbles up to the card wrapper -->
+                            <!-- Pointer-events-none passes click up to the card element so it triggers seamlessly -->
                             <button ${!available ? 'disabled' : ''} class="w-full ${!available ? 'bg-gray-100 text-gray-400' : 'bg-coffee-50 text-coffee-800 border-coffee-200'} py-2.5 rounded-xl text-sm font-medium transition-colors duration-300 flex justify-center items-center gap-2 border pointer-events-none">
                                 <i class="ph ph-${!available ? 'prohibit' : 'plus'} font-bold"></i>
                                 <span>${!available ? 'Unavailable' : 'Add to Order'}</span>
