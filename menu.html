@@ -85,12 +85,19 @@
                     <span class="font-serif font-bold text-2xl tracking-wide text-coffee-900">Brewha</span>
                 </div>
                 
-                <div class="hidden md:flex space-x-8 items-center">
+                <div class="hidden md:flex space-x-6 items-center">
                     <a href="#menu" class="text-coffee-800 hover:text-coffee-500 transition-colors font-medium">Menu</a>
                     <button onclick="window.location.href='index.html'" class="text-sm border border-coffee-300 text-coffee-800 px-4 py-1.5 rounded-full hover:bg-coffee-100 transition-colors">Log out</button>
                 </div>
 
-                <div class="flex items-center">
+                <div class="flex items-center gap-2 md:gap-4">
+                    <!-- Order History Button -->
+                    <button onclick="openCustomerHistory()" class="text-coffee-800 hover:text-coffee-500 transition-colors font-medium flex items-center gap-1 p-2">
+                        <i class="ph ph-clock-counter-clockwise text-2xl"></i>
+                        <span class="hidden md:inline font-bold text-sm">My Orders</span>
+                    </button>
+
+                    <!-- Cart Button -->
                     <button onclick="toggleCart()" class="relative p-2 text-coffee-800 hover:text-coffee-500 transition-colors focus:outline-none group">
                         <i class="ph ph-shopping-bag text-2xl group-hover:scale-110 transition-transform"></i>
                         <span id="cart-badge" class="absolute top-0 right-0 bg-coffee-600 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center transform scale-0 transition-transform duration-300">0</span>
@@ -205,43 +212,76 @@
         </div>
     </div>
 
-    <!-- Product Details & Add-ons Modal -->
+    <!-- NEW SIDE-BY-SIDE Product Details & Add-ons Modal -->
     <div id="product-modal" class="fixed inset-0 bg-coffee-950/80 backdrop-blur-md z-[70] hidden flex items-end md:items-center justify-center p-0 md:p-4 opacity-0 transition-opacity duration-300">
         <div class="absolute inset-0" onclick="closeProductModal()"></div>
-        <div class="bg-white w-full md:max-w-lg md:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] md:max-h-[90vh] transform translate-y-full md:scale-95 transition-all duration-300 relative z-10" id="pm-content">
+        <!-- Wider modal, flex-row on desktop -->
+        <div class="bg-white w-full md:max-w-4xl md:rounded-2xl rounded-t-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[95vh] md:max-h-[85vh] transform translate-y-full md:scale-95 transition-all duration-300 relative z-10" id="pm-content">
             
-            <div class="relative h-64 md:h-72 w-full bg-coffee-100 flex-shrink-0">
+            <!-- Left Side: Image -->
+            <div class="relative h-64 md:h-auto md:w-1/2 bg-coffee-100 flex-shrink-0">
                 <img id="pm-image" src="" class="w-full h-full object-cover" alt="">
-                <button onclick="closeProductModal()" class="absolute top-4 right-4 bg-white/80 backdrop-blur text-coffee-900 p-2 rounded-full shadow hover:bg-white transition-colors">
+                <button onclick="closeProductModal()" class="absolute top-4 right-4 md:hidden bg-white/80 backdrop-blur text-coffee-900 p-2 rounded-full shadow hover:bg-white transition-colors">
                     <i class="ph ph-x font-bold"></i>
                 </button>
             </div>
 
-            <div class="p-6 overflow-y-auto flex-1 no-scrollbar pb-24">
-                <div class="mb-6">
-                    <div class="flex justify-between items-start gap-4">
-                        <h3 id="pm-name" class="text-3xl font-serif font-bold text-coffee-950 leading-tight"></h3>
-                        <span id="pm-price" class="text-xl font-bold text-coffee-600 whitespace-nowrap"></span>
+            <!-- Right Side: Content & Add-ons -->
+            <div class="flex-1 flex flex-col md:w-1/2 relative h-full">
+                <!-- Desktop Close Button -->
+                <button onclick="closeProductModal()" class="hidden md:flex absolute top-4 right-4 bg-gray-100 text-gray-500 hover:text-coffee-900 hover:bg-gray-200 p-2 rounded-full shadow-sm transition-colors z-20">
+                    <i class="ph ph-x font-bold"></i>
+                </button>
+
+                <div class="p-6 md:p-8 overflow-y-auto flex-1 no-scrollbar pb-24 md:pb-28">
+                    <div class="mb-6 md:pr-10">
+                        <div class="flex justify-between items-start gap-4 flex-col sm:flex-row">
+                            <h3 id="pm-name" class="text-3xl font-serif font-bold text-coffee-950 leading-tight"></h3>
+                            <span id="pm-price" class="text-2xl font-bold text-coffee-600 whitespace-nowrap"></span>
+                        </div>
+                        <p id="pm-desc" class="text-coffee-500 text-sm mt-2 uppercase tracking-wider font-bold"></p>
                     </div>
-                    <p id="pm-desc" class="text-coffee-500 text-sm mt-1 uppercase tracking-wider font-bold"></p>
+
+                    <div id="pm-addons-container" class="hidden">
+                        <div class="flex items-center gap-2 mb-4 border-b border-coffee-100 pb-2">
+                            <i class="ph ph-plus-circle text-xl text-coffee-500"></i>
+                            <h4 class="font-bold text-coffee-900">Would you like to add some extras?</h4>
+                        </div>
+                        <div id="pm-addons-list" class="space-y-3">
+                            <!-- Checkboxes injected by JS -->
+                        </div>
+                    </div>
                 </div>
 
-                <div id="pm-addons-container" class="hidden">
-                    <div class="flex items-center gap-2 mb-4 border-b border-coffee-100 pb-2">
-                        <i class="ph ph-plus-circle text-xl text-coffee-500"></i>
-                        <h4 class="font-bold text-coffee-900">Would you like to add some extras?</h4>
-                    </div>
-                    <div id="pm-addons-list" class="space-y-2">
-                        <!-- Checkboxes injected by JS -->
-                    </div>
+                <!-- Fixed Bottom Action -->
+                <div class="absolute bottom-0 w-full p-4 border-t border-coffee-100 bg-white/90 backdrop-blur-md shadow-[0_-4px_15px_rgb(0,0,0,0.05)]">
+                    <button onclick="confirmAddToCart()" class="w-full bg-coffee-900 text-white py-4 rounded-xl font-medium hover:bg-coffee-800 transition-transform active:scale-95 shadow-md flex justify-between items-center px-6">
+                        <span class="flex items-center gap-2"><i class="ph ph-shopping-bag"></i> Add to Order</span>
+                        <span id="pm-btn-price" class="font-bold text-lg"></span>
+                    </button>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="absolute bottom-0 w-full p-4 border-t border-coffee-100 bg-white/90 backdrop-blur-md shadow-[0_-4px_15px_rgb(0,0,0,0.05)]">
-                <button onclick="confirmAddToCart()" class="w-full bg-coffee-900 text-white py-4 rounded-xl font-medium hover:bg-coffee-800 transition-transform active:scale-95 shadow-md flex justify-between items-center px-6">
-                    <span class="flex items-center gap-2"><i class="ph ph-shopping-bag"></i> Add to Order</span>
-                    <span id="pm-btn-price" class="font-bold text-lg"></span>
+    <!-- Customer Order History Modal -->
+    <div id="history-modal" class="fixed inset-0 bg-coffee-950/80 backdrop-blur-md z-[60] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+        <div class="absolute inset-0" onclick="closeCustomerHistory()"></div>
+        <div class="bg-gray-50 rounded-2xl max-w-2xl w-full p-0 shadow-2xl flex flex-col h-[85vh] transform scale-95 transition-transform duration-300 relative z-10" id="history-content">
+            <div class="bg-white px-6 py-5 border-b border-gray-200 flex justify-between items-center rounded-t-2xl">
+                <div>
+                    <h2 class="text-2xl font-serif font-bold text-coffee-900 flex items-center gap-2">
+                        <i class="ph ph-clock-counter-clockwise text-coffee-600"></i> My Orders
+                    </h2>
+                    <p class="text-sm text-gray-500 mt-1">Track your current and past orders.</p>
+                </div>
+                <button onclick="closeCustomerHistory()" class="text-gray-400 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 p-2 rounded-full transition-colors">
+                    <i class="ph ph-x text-xl font-bold"></i>
                 </button>
+            </div>
+            
+            <div id="customer-orders-list" class="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
+                <!-- Orders injected here -->
             </div>
         </div>
     </div>
@@ -271,7 +311,7 @@
                 </div>
             </div>
             <button onclick="closeCheckout()" class="w-full bg-coffee-600 text-white py-3 rounded-xl font-medium hover:bg-coffee-500 transition-colors">
-                Close & Return
+                Track Order Status
             </button>
         </div>
     </div>
@@ -281,8 +321,8 @@
     <!-- Firebase Connection for Customer Menu -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDsap0Yqqlr5ghuhXJuCbItWCQRNXKJMP8",
@@ -323,6 +363,17 @@
                     }
                     if (window.renderProducts) window.renderProducts();
                 });
+
+                // Listen to My Orders
+                const ordersRef = collection(db, 'artifacts', firestoreAppId, 'public', 'data', 'orders');
+                onSnapshot(ordersRef, (snapshot) => {
+                    const allOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    allOrders.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)); 
+                    
+                    // Filter only orders placed by this specific UID
+                    window.customerOrders = allOrders.filter(o => o.uid === user.uid);
+                    if (typeof window.renderCustomerHistory === 'function') window.renderCustomerHistory();
+                });
             }
         });
 
@@ -339,10 +390,11 @@
                 return name;
             });
 
-            // Use Real Name
+            // Use Real Name and save UID so they can track it securely
             const customerName = currentUserProfile && currentUserProfile.fullName ? currentUserProfile.fullName : 'Online Guest';
 
             const newOrder = {
+                uid: user.uid,
                 source: 'Online',
                 customer: customerName, 
                 items: formattedItems,
@@ -364,47 +416,47 @@
 
     <script>
         const rawMenu = [
-            { id: 1, name: "Fried Egg", price: 15.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1525916801717-94ec18db35b1?auto=format&fit=crop&w=400&q=80" },
-            { id: 2, name: "Siomai (4 pcs)", price: 25.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=400&q=80" },
-            { id: 3, name: "Lumpia Shanghai", price: 10.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=400&q=80" },
-            { id: 4, name: "Chicken Pastil", price: 40.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=400&q=80" },
-            { id: 5, name: "Adobo", price: 50.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1598515322629-943015f6ceee?auto=format&fit=crop&w=400&q=80" },
-            { id: 6, name: "Rice", price: 15.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=400&q=80" },
-            { id: 7, name: "Dinuguan", price: 50.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1548943487-a2e4e43b4850?auto=format&fit=crop&w=400&q=80" },
-            { id: 8, name: "Puto", price: 10.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1600289031464-74d374b64991?auto=format&fit=crop&w=400&q=80" },
-            { id: 9, name: "Hungarian", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=400&q=80" },
-            { id: 10, name: "Pork Katsu", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1578160112054-954a67602b88?auto=format&fit=crop&w=400&q=80" },
-            { id: 11, name: "Chicken Adobo", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=400&q=80" },
-            { id: 12, name: "Sisig", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1627308595229-7830f5c95f9d?auto=format&fit=crop&w=400&q=80" },
-            { id: 13, name: "Chicken Pastil", price: 50.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=400&q=80" },
-            { id: 14, name: "Lumpia Shanghai (3 pcs)", price: 50.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=400&q=80" },
-            { id: 15, name: "Hotdog (2 pcs)", price: 40.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1541214113241-21578d2d9b62?auto=format&fit=crop&w=400&q=80" },
-            { id: 16, name: "Siomai (4 pcs) Meal", price: 35.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=400&q=80" },
-            { id: 17, name: "Brewed Coffee", price: 25.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=400&q=80" },
-            { id: 18, name: "Café Latte", price: 35.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?auto=format&fit=crop&w=400&q=80" },
-            { id: 19, name: "Hot Chocolate", price: 35.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?auto=format&fit=crop&w=400&q=80" },
-            { id: 20, name: "Vietnamese Coffee", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=400&q=80" },
-            { id: 21, name: "Latte", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=400&q=80" },
-            { id: 22, name: "Greek Frappe", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=400&q=80" },
-            { id: 23, name: "Café Mocha", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=400&q=80" },
-            { id: 24, name: "Honey-Lemon", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1527661591475-527312dd65f5?auto=format&fit=crop&w=400&q=80" },
-            { id: 25, name: "Lychee-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=400&q=80" },
-            { id: 26, name: "Orange-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1600271886742-f049cd451b08?auto=format&fit=crop&w=400&q=80" },
-            { id: 27, name: "Coconut-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1595981267035-7b04d9b4b005?auto=format&fit=crop&w=400&q=80" },
-            { id: 28, name: "Iced Chocolate", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1546548970-71785318a306?auto=format&fit=crop&w=400&q=80" },
-            { id: 29, name: "Choco Float", price: 45.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1553177595-4de2bb0842b9?auto=format&fit=crop&w=400&q=80" },
-            { id: 30, name: "Milky Strawberry", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1553787762-b5f528158c9c?auto=format&fit=crop&w=400&q=80" },
-            { id: 31, name: "Matcha Dalgona", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&w=400&q=80" },
-            { id: 32, name: "Strawberry", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80" },
-            { id: 33, name: "Four Seasons", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400&q=80" },
-            { id: 34, name: "Blue Lemonade", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=400&q=80" },
-            { id: 35, name: "Lychee", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=400&q=80" },
-            { id: 36, name: "Blueberry", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1597403491447-3ab08f8e44dc?auto=format&fit=crop&w=400&q=80" },
-            { id: 37, name: "Green Apple", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80" },
-            { id: 38, name: "Orange", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1600271886742-f049cd451b08?auto=format&fit=crop&w=400&q=80" },
-            { id: 39, name: "Coke Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1628873041695-095562095ce9?auto=format&fit=crop&w=400&q=80" },
-            { id: 40, name: "Strawberry Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&w=400&q=80" },
-            { id: 41, name: "Blueberry Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1597403491447-3ab08f8e44dc?auto=format&fit=crop&w=400&q=80" }
+            { id: 1, name: "Fried Egg", price: 15.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1525916801717-94ec18db35b1?auto=format&fit=crop&w=600&q=80" },
+            { id: 2, name: "Siomai (4 pcs)", price: 25.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=600&q=80" },
+            { id: 3, name: "Lumpia Shanghai", price: 10.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=600&q=80" },
+            { id: 4, name: "Chicken Pastil", price: 40.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=600&q=80" },
+            { id: 5, name: "Adobo", price: 50.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1598515322629-943015f6ceee?auto=format&fit=crop&w=600&q=80" },
+            { id: 6, name: "Rice", price: 15.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=600&q=80" },
+            { id: 7, name: "Dinuguan", price: 50.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1548943487-a2e4e43b4850?auto=format&fit=crop&w=600&q=80" },
+            { id: 8, name: "Puto", price: 10.00, category: "A La Carte", image: "https://images.unsplash.com/photo-1600289031464-74d374b64991?auto=format&fit=crop&w=600&q=80" },
+            { id: 9, name: "Hungarian", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&w=600&q=80" },
+            { id: 10, name: "Pork Katsu", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1578160112054-954a67602b88?auto=format&fit=crop&w=600&q=80" },
+            { id: 11, name: "Chicken Adobo", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=600&q=80" },
+            { id: 12, name: "Sisig", price: 60.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1627308595229-7830f5c95f9d?auto=format&fit=crop&w=600&q=80" },
+            { id: 13, name: "Chicken Pastil", price: 50.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=600&q=80" },
+            { id: 14, name: "Lumpia Shanghai (3 pcs)", price: 50.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=600&q=80" },
+            { id: 15, name: "Hotdog (2 pcs)", price: 40.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1541214113241-21578d2d9b62?auto=format&fit=crop&w=600&q=80" },
+            { id: 16, name: "Siomai (4 pcs) Meal", price: 35.00, category: "Rice Meals", image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?auto=format&fit=crop&w=600&q=80" },
+            { id: 17, name: "Brewed Coffee", price: 25.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80" },
+            { id: 18, name: "Café Latte", price: 35.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?auto=format&fit=crop&w=600&q=80" },
+            { id: 19, name: "Hot Chocolate", price: 35.00, category: "Hot Drinks", image: "https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?auto=format&fit=crop&w=600&q=80" },
+            { id: 20, name: "Vietnamese Coffee", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80" },
+            { id: 21, name: "Latte", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=600&q=80" },
+            { id: 22, name: "Greek Frappe", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=600&q=80" },
+            { id: 23, name: "Café Mocha", price: 39.00, category: "Iced Coffee", image: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&w=600&q=80" },
+            { id: 24, name: "Honey-Lemon", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1527661591475-527312dd65f5?auto=format&fit=crop&w=600&q=80" },
+            { id: 25, name: "Lychee-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=600&q=80" },
+            { id: 26, name: "Orange-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1600271886742-f049cd451b08?auto=format&fit=crop&w=600&q=80" },
+            { id: 27, name: "Coconut-Americano", price: 39.00, category: "Iced Americano", image: "https://images.unsplash.com/photo-1595981267035-7b04d9b4b005?auto=format&fit=crop&w=600&q=80" },
+            { id: 28, name: "Iced Chocolate", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1546548970-71785318a306?auto=format&fit=crop&w=600&q=80" },
+            { id: 29, name: "Choco Float", price: 45.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1553177595-4de2bb0842b9?auto=format&fit=crop&w=600&q=80" },
+            { id: 30, name: "Milky Strawberry", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1553787762-b5f528158c9c?auto=format&fit=crop&w=600&q=80" },
+            { id: 31, name: "Matcha Dalgona", price: 39.00, category: "Non-Coffee", image: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&w=600&q=80" },
+            { id: 32, name: "Strawberry", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80" },
+            { id: 33, name: "Four Seasons", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80" },
+            { id: 34, name: "Blue Lemonade", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=600&q=80" },
+            { id: 35, name: "Lychee", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=600&q=80" },
+            { id: 36, name: "Blueberry", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1597403491447-3ab08f8e44dc?auto=format&fit=crop&w=600&q=80" },
+            { id: 37, name: "Green Apple", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80" },
+            { id: 38, name: "Orange", price: 35.00, category: "Fruit Soda", image: "https://images.unsplash.com/photo-1600271886742-f049cd451b08?auto=format&fit=crop&w=600&q=80" },
+            { id: 39, name: "Coke Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1628873041695-095562095ce9?auto=format&fit=crop&w=600&q=80" },
+            { id: 40, name: "Strawberry Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&w=600&q=80" },
+            { id: 41, name: "Blueberry Float", price: 39.00, category: "Soda Float", image: "https://images.unsplash.com/photo-1597403491447-3ab08f8e44dc?auto=format&fit=crop&w=600&q=80" }
         ];
 
         const products = rawMenu;
@@ -465,6 +517,7 @@
         let currentSelectedAddons = [];
         
         window.unavailableIds = [];
+        window.customerOrders = []; // Populated from cloud
 
         document.addEventListener('DOMContentLoaded', () => {
             renderTabs();
@@ -553,7 +606,7 @@
             return [];
         }
 
-        function openProductModal(productId) {
+        window.openProductModal = function(productId) {
             currentModalProduct = products.find(p => p.id === productId);
             if (!currentModalProduct) return;
             currentSelectedAddons = [];
@@ -597,9 +650,9 @@
                 content.classList.add('translate-y-0', 'md:scale-100');
             });
             document.body.style.overflow = 'hidden';
-        }
+        };
 
-        function closeProductModal() {
+        window.closeProductModal = function() {
             const modal = document.getElementById('product-modal');
             const content = document.getElementById('pm-content');
             
@@ -611,16 +664,16 @@
                 modal.classList.add('hidden');
                 if(!isCartOpen) document.body.style.overflow = '';
             }, 300);
-        }
+        };
 
-        function toggleAddon(id, name, price, isChecked) {
+        window.toggleAddon = function(id, name, price, isChecked) {
             if (isChecked) {
                 currentSelectedAddons.push({ id, name, price });
             } else {
                 currentSelectedAddons = currentSelectedAddons.filter(a => a.id !== id);
             }
             updateModalTotal();
-        }
+        };
 
         function updateModalTotal() {
             const addonsTotal = currentSelectedAddons.reduce((sum, a) => sum + a.price, 0);
@@ -628,7 +681,7 @@
             document.getElementById('pm-btn-price').textContent = `₱${total.toFixed(2)}`;
         }
 
-        function confirmAddToCart() {
+        window.confirmAddToCart = function() {
             if (!currentModalProduct) return;
 
             const addonIds = currentSelectedAddons.map(a => a.id).sort().join('-');
@@ -657,21 +710,21 @@
             setTimeout(() => badge.classList.remove('scale-125'), 200);
 
             closeProductModal();
-        }
+        };
 
-        function removeFromCart(cartItemId) {
+        window.removeFromCart = function(cartItemId) {
             cart = cart.filter(item => item.cartItemId !== cartItemId);
             updateCartUI();
-        }
+        };
 
-        function changeQuantity(cartItemId, delta) {
+        window.changeQuantity = function(cartItemId, delta) {
             const item = cart.find(item => item.cartItemId === cartItemId);
             if (!item) return;
 
             item.quantity += delta;
             if (item.quantity <= 0) removeFromCart(cartItemId);
             else updateCartUI();
-        }
+        };
 
         function updateCartUI() {
             const cartItemsContainer = document.getElementById('cart-items');
@@ -739,7 +792,7 @@
             totalEl.textContent = `₱${subtotal.toFixed(2)}`;
         }
 
-        function toggleCart() {
+        window.toggleCart = function() {
             const drawer = document.getElementById('cart-drawer');
             const overlay = document.getElementById('cart-overlay');
             const body = document.body;
@@ -761,12 +814,12 @@
                 setTimeout(() => { overlay.classList.add('hidden'); }, 300);
                 body.style.overflow = '';
             }
-        }
+        };
 
         function showToast(message) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = 'bg-coffee-900 text-white px-5 py-3 rounded-lg shadow-xl flex items-center gap-3 transform translate-y-full opacity-0 transition-all duration-300 text-sm';
+            toast.className = 'bg-coffee-900 text-white px-5 py-3 rounded-lg shadow-xl flex items-center gap-3 transform translate-y-full opacity-0 transition-all duration-300 text-sm z-50';
             toast.innerHTML = `
                 <div class="bg-coffee-800 rounded-full p-1"><i class="ph ph-check text-green-400"></i></div>
                 <span class="font-medium">${message}</span>
@@ -781,7 +834,7 @@
             }, 2500);
         }
 
-        async function openCheckout() {
+        window.openCheckout = async function() {
             if (cart.length === 0) return;
             
             const total = cart.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
@@ -815,9 +868,9 @@
             
             btn.innerHTML = originalBtnHtml;
             btn.disabled = false;
-        }
+        };
 
-        function closeCheckout() {
+        window.closeCheckout = function() {
             const modal = document.getElementById('checkout-modal');
             const content = document.getElementById('checkout-content');
             
@@ -828,8 +881,83 @@
             setTimeout(() => {
                 modal.classList.add('hidden');
                 window.scrollTo({top:0, behavior:'smooth'});
+                
+                // Once closed, open their history to see the new order
+                window.openCustomerHistory();
             }, 300);
-        }
+        };
+
+        // --- Customer History Logic ---
+        window.renderCustomerHistory = function() {
+            const container = document.getElementById('customer-orders-list');
+            if(!container) return;
+
+            if (!window.customerOrders || window.customerOrders.length === 0) {
+                container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-gray-400 py-12">
+                        <i class="ph ph-receipt text-6xl mb-4 opacity-30"></i>
+                        <p class="font-medium text-lg text-gray-500">You haven't placed any orders yet.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = window.customerOrders.map(order => {
+                let statusColor = 'bg-amber-100 text-amber-700 border-amber-200';
+                let statusIcon = 'ph-clock';
+                if (order.status === 'Preparing') { statusColor = 'bg-blue-100 text-blue-700 border-blue-200'; statusIcon = 'ph-cooking-pot'; }
+                if (order.status === 'Completed') { statusColor = 'bg-green-100 text-green-700 border-green-200'; statusIcon = 'ph-check-circle'; }
+                
+                return `
+                    <div class="bg-white rounded-xl p-5 border border-gray-100 shadow-sm flex flex-col gap-3 relative overflow-hidden transition-all hover:shadow-md">
+                        ${order.status === 'Pending' ? '<div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>' : ''}
+                        ${order.status === 'Preparing' ? '<div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>' : ''}
+                        ${order.status === 'Completed' ? '<div class="absolute top-0 left-0 w-1 h-full bg-green-500"></div>' : ''}
+                        
+                        <div class="flex justify-between items-start ml-2">
+                            <div>
+                                <h4 class="font-bold text-gray-900">${order.id}</h4>
+                                <span class="text-xs font-medium text-gray-400 mt-1 block">${new Date(order.createdAt).toLocaleString()}</span>
+                            </div>
+                            <span class="${statusColor} border px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5">
+                                <i class="ph ${statusIcon} text-sm"></i> ${order.status}
+                            </span>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-1 ml-2 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                            ${order.items.map(i => `<li><span class="text-coffee-600 font-bold mr-1">•</span> ${i}</li>`).join('')}
+                        </ul>
+                        <div class="font-bold text-coffee-900 text-right text-lg border-t border-gray-100 pt-3 mt-1">Total: ₱${order.total.toFixed(2)}</div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.openCustomerHistory = function() {
+            const modal = document.getElementById('history-modal');
+            const content = document.getElementById('history-content');
+            
+            if (typeof window.renderCustomerHistory === 'function') window.renderCustomerHistory();
+            
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            });
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeCustomerHistory = function() {
+            const modal = document.getElementById('history-modal');
+            const content = document.getElementById('history-content');
+            modal.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                if(!isCartOpen) document.body.style.overflow = '';
+            }, 300);
+        };
     </script>
 </body>
 </html>
