@@ -59,6 +59,9 @@
                 <div class="flex items-center gap-3"><i class="ph ph-receipt text-lg"></i> Live Orders</div>
                 <span id="nav-order-count" class="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
             </button>
+            <button onclick="switchTab('history')" id="nav-history" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left font-medium text-coffee-200 hover:bg-coffee-900 transition-colors">
+                <i class="ph ph-clock-counter-clockwise text-lg"></i> Order History
+            </button>
             <button onclick="switchTab('inventory')" id="nav-inventory" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left font-medium text-coffee-200 hover:bg-coffee-900 transition-colors">
                 <div class="flex items-center gap-3"><i class="ph ph-package text-lg"></i> Inventory</div>
                 <span id="nav-alert-count" class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full hidden">0</span>
@@ -135,8 +138,6 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        
-        // Force strict syncing with the live deployed GitHub version
         const firestoreAppId = 'brewha-cafe'; 
 
         // --- 2. AUTHENTICATION & LISTENERS ---
@@ -144,16 +145,12 @@
         
         const initAuth = async () => {
             try {
-                // Explicitly sign in anonymously to avoid token mismatch with the Canvas sandbox
                 await signInAnonymously(auth);
             } catch(e) { 
                 console.error("Firebase Auth Error", e); 
-                showToast("Could not connect to database. Make sure Anonymous Auth is enabled in Firebase Console!", "warning");
+                showToast("Could not connect to database. Make sure Anonymous Auth is enabled!", "warning");
                 const statusDot = document.getElementById('connection-status');
-                if (statusDot) {
-                    statusDot.className = "w-2 h-2 bg-red-500 rounded-full";
-                    statusDot.title = "Disconnected";
-                }
+                if (statusDot) statusDot.className = "w-2 h-2 bg-red-500 rounded-full";
             }
         };
         
@@ -164,55 +161,82 @@
             const statusDot = document.getElementById('connection-status');
             
             if (user) {
-                if (statusDot) {
-                    statusDot.className = "w-2 h-2 bg-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.8)]";
-                    statusDot.title = "Connected";
-                }
+                if (statusDot) statusDot.className = "w-2 h-2 bg-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.8)]";
                 setupRealtimeListeners();
             } else {
-                if (statusDot) {
-                    statusDot.className = "w-2 h-2 bg-red-500 rounded-full";
-                    statusDot.title = "Disconnected";
-                }
+                if (statusDot) statusDot.className = "w-2 h-2 bg-red-500 rounded-full";
             }
         });
 
         // --- Data Models / Local State ---
         let inventoryData = [];
         let liveOrders = [];
+        let completedOrders = [];
+        let unavailableIds = [];
         let currentTab = 'dashboard';
         let stats = { revenue: 0, ordersToday: 0 };
 
         // Default Seeding Data
         const defaultInventoryData = [
-            { id: 'i1', category: 'Coffee (Hot/Cold)', item: 'Coffee Beans', stock: 2.0, unit: 'Kg', threshold: 1.0 },
-            { id: 'i2', category: 'Coffee (Hot/Cold)', item: 'Fresh Milk', stock: 5.0, unit: 'L', threshold: 2.0 },
-            { id: 'i3', category: 'Coffee (Hot/Cold)', item: 'Condensed Milk', stock: 5, unit: 'Cans', threshold: 2 },
-            { id: 'i4', category: 'Coffee (Hot/Cold)', item: 'Lemon Extract Juice', stock: 500, unit: 'ml', threshold: 200 },
-            { id: 'i5', category: 'Non-Coffee & Add-ons', item: 'Chocolate Syrup', stock: 2.0, unit: 'L', threshold: 1.0 },
-            { id: 'i6', category: 'Non-Coffee & Add-ons', item: 'Matcha Powder', stock: 200, unit: 'g', threshold: 100 },
+            { id: 'i1', category: 'Coffee', item: 'Coffee Beans', stock: 2.0, unit: 'Kg', threshold: 1.0 },
+            { id: 'i2', category: 'Coffee', item: 'Fresh Milk', stock: 5.0, unit: 'L', threshold: 2.0 },
+            { id: 'i3', category: 'Coffee', item: 'Condensed Milk', stock: 5, unit: 'Cans', threshold: 2 },
+            { id: 'i4', category: 'Coffee', item: 'Lemon Extract Juice', stock: 500, unit: 'ml', threshold: 200 },
+            { id: 'i5', category: 'Non-Coffee', item: 'Chocolate Syrup', stock: 2.0, unit: 'L', threshold: 1.0 },
+            { id: 'i6', category: 'Non-Coffee', item: 'Matcha Powder', stock: 200, unit: 'g', threshold: 100 },
             { id: 'i7', category: 'Soda/Essential', item: 'Coke', stock: 20, unit: 'Bottles', threshold: 10 },
             { id: 'i8', category: 'Soda/Essential', item: 'Ice', stock: 10.0, unit: 'Kg', threshold: 5.0 },
-            { id: 'i9', category: 'Kitchen Meals', item: 'Rice', stock: 10.0, unit: 'Kg', threshold: 5.0 },
-            { id: 'i10', category: 'Kitchen Meals', item: 'Pork', stock: 9.0, unit: 'Kg', threshold: 5.0 },
-            { id: 'i11', category: 'Kitchen Meals', item: 'Siomai', stock: 100, unit: 'pcs', threshold: 40 },
-            { id: 'i12', category: 'Kitchen Meals', item: 'Lumpia', stock: 50, unit: 'pcs', threshold: 40 },
+            { id: 'i9', category: 'Meals', item: 'Rice', stock: 10.0, unit: 'Kg', threshold: 5.0 },
+            { id: 'i10', category: 'Meals', item: 'Pork', stock: 9.0, unit: 'Kg', threshold: 5.0 },
+            { id: 'i11', category: 'Meals', item: 'Siomai', stock: 100, unit: 'pcs', threshold: 40 },
+            { id: 'i12', category: 'Meals', item: 'Lumpia', stock: 50, unit: 'pcs', threshold: 40 },
             { id: 'i13', category: 'Packaging', item: 'Cold Cups', stock: 150, unit: 'pcs', threshold: 100 },
             { id: 'i14', category: 'Packaging', item: 'Hot Cups', stock: 150, unit: 'pcs', threshold: 100 },
             { id: 'i15', category: 'Packaging', item: 'Round Paper Bowls', stock: 300, unit: 'pcs', threshold: 100 }
         ];
 
         const productsList = [
-            { name: "Sisig", price: 60.00, category: "Rice Meals" },
-            { name: "Hungarian", price: 60.00, category: "Rice Meals" },
-            { name: "Siomai (4 pcs)", price: 25.00, category: "A La Carte" },
-            { name: "Lumpia Shanghai", price: 10.00, category: "A La Carte" },
-            { name: "Brewed Coffee", price: 25.00, category: "Hot Drinks" },
-            { name: "Café Latte", price: 35.00, category: "Hot Drinks" },
-            { name: "Vietnamese Coffee", price: 39.00, category: "Iced Coffee" },
-            { name: "Matcha Dalgona", price: 39.00, category: "Non-Coffee" },
-            { name: "Strawberry Soda", price: 35.00, category: "Fruit Soda" },
-            { name: "Coke Float", price: 39.00, category: "Soda Float" }
+            { id: 1, name: "Fried Egg", price: 15.00, category: "A La Carte" },
+            { id: 2, name: "Siomai (4 pcs)", price: 25.00, category: "A La Carte" },
+            { id: 3, name: "Lumpia Shanghai", price: 10.00, category: "A La Carte" },
+            { id: 4, name: "Chicken Pastil", price: 40.00, category: "A La Carte" },
+            { id: 5, name: "Adobo", price: 50.00, category: "A La Carte" },
+            { id: 6, name: "Rice", price: 15.00, category: "A La Carte" },
+            { id: 7, name: "Dinuguan", price: 50.00, category: "A La Carte" },
+            { id: 8, name: "Puto", price: 10.00, category: "A La Carte" },
+            { id: 9, name: "Hungarian", price: 60.00, category: "Rice Meals" },
+            { id: 10, name: "Pork Katsu", price: 60.00, category: "Rice Meals" },
+            { id: 11, name: "Chicken Adobo", price: 60.00, category: "Rice Meals" },
+            { id: 12, name: "Sisig", price: 60.00, category: "Rice Meals" },
+            { id: 13, name: "Chicken Pastil", price: 50.00, category: "Rice Meals" },
+            { id: 14, name: "Lumpia Shanghai (3 pcs)", price: 50.00, category: "Rice Meals" },
+            { id: 15, name: "Hotdog (2 pcs)", price: 40.00, category: "Rice Meals" },
+            { id: 16, name: "Siomai (4 pcs) Meal", price: 35.00, category: "Rice Meals" },
+            { id: 17, name: "Brewed Coffee", price: 25.00, category: "Hot Drinks" },
+            { id: 18, name: "Café Latte", price: 35.00, category: "Hot Drinks" },
+            { id: 19, name: "Hot Chocolate", price: 35.00, category: "Hot Drinks" },
+            { id: 20, name: "Vietnamese Coffee", price: 39.00, category: "Iced Coffee" },
+            { id: 21, name: "Latte", price: 39.00, category: "Iced Coffee" },
+            { id: 22, name: "Greek Frappe", price: 39.00, category: "Iced Coffee" },
+            { id: 23, name: "Café Mocha", price: 39.00, category: "Iced Coffee" },
+            { id: 24, name: "Honey-Lemon", price: 39.00, category: "Iced Americano" },
+            { id: 25, name: "Lychee-Americano", price: 39.00, category: "Iced Americano" },
+            { id: 26, name: "Orange-Americano", price: 39.00, category: "Iced Americano" },
+            { id: 27, name: "Coconut-Americano", price: 39.00, category: "Iced Americano" },
+            { id: 28, name: "Iced Chocolate", price: 39.00, category: "Non-Coffee" },
+            { id: 29, name: "Choco Float", price: 45.00, category: "Non-Coffee" },
+            { id: 30, name: "Milky Strawberry", price: 39.00, category: "Non-Coffee" },
+            { id: 31, name: "Matcha Dalgona", price: 39.00, category: "Non-Coffee" },
+            { id: 32, name: "Strawberry", price: 35.00, category: "Fruit Soda" },
+            { id: 33, name: "Four Seasons", price: 35.00, category: "Fruit Soda" },
+            { id: 34, name: "Blue Lemonade", price: 35.00, category: "Fruit Soda" },
+            { id: 35, name: "Lychee", price: 35.00, category: "Fruit Soda" },
+            { id: 36, name: "Blueberry", price: 35.00, category: "Fruit Soda" },
+            { id: 37, name: "Green Apple", price: 35.00, category: "Fruit Soda" },
+            { id: 38, name: "Orange", price: 35.00, category: "Fruit Soda" },
+            { id: 39, name: "Coke Float", price: 39.00, category: "Soda Float" },
+            { id: 40, name: "Strawberry Float", price: 39.00, category: "Soda Float" },
+            { id: 41, name: "Blueberry Float", price: 39.00, category: "Soda Float" }
         ];
 
         function setupRealtimeListeners() {
@@ -222,10 +246,7 @@
             const invRef = collection(db, 'artifacts', firestoreAppId, 'public', 'data', 'inventory');
             onSnapshot(invRef, (snapshot) => {
                 if (snapshot.empty && inventoryData.length === 0) {
-                    // Seed database if empty
-                    defaultInventoryData.forEach(item => {
-                        setDoc(doc(invRef, item.id), item);
-                    });
+                    defaultInventoryData.forEach(item => setDoc(doc(invRef, item.id), item));
                 } else {
                     inventoryData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     if (currentTab === 'inventory' || currentTab === 'dashboard') switchTab(currentTab);
@@ -236,49 +257,67 @@
             // Listen to Orders
             const ordersRef = collection(db, 'artifacts', firestoreAppId, 'public', 'data', 'orders');
             onSnapshot(ordersRef, (snapshot) => {
-                liveOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                liveOrders.sort((a,b) => b.createdAt - a.createdAt); // Sort newest first
+                const allOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                allOrders.sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)); 
                 
-                // Calculate today's pending revenue
-                stats.revenue = liveOrders.reduce((sum, order) => sum + order.total, 0);
+                liveOrders = allOrders.filter(o => o.status !== 'Completed');
+                completedOrders = allOrders.filter(o => o.status === 'Completed');
+                
+                stats.revenue = allOrders.reduce((sum, order) => sum + order.total, 0);
 
-                if (currentTab === 'orders' || currentTab === 'dashboard') switchTab(currentTab);
+                if (currentTab === 'orders' || currentTab === 'history' || currentTab === 'dashboard') switchTab(currentTab);
                 updateBadges();
             }, (error) => console.error("Error with Orders listener", error));
+
+            // Listen to Catalog Availability
+            const availRef = doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'settings', 'availability');
+            onSnapshot(availRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    unavailableIds = docSnap.data().ids || [];
+                } else {
+                    unavailableIds = [];
+                }
+                if (currentTab === 'products' || currentTab === 'dashboard') switchTab(currentTab);
+            });
         }
 
         // --- UI & Cloud Actions ---
 
         window.switchTab = switchTab;
+        
         window.updateOrderStatus = async function(id, newStatus) {
-            if (!user) {
-                showToast("Not connected to database.", "warning");
-                return;
-            }
+            if (!user) return;
             const orderDoc = doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'orders', id);
             await updateDoc(orderDoc, { status: newStatus });
         };
         
         window.markOrderDone = async function(id) {
-            if (!user) {
-                showToast("Not connected to database.", "warning");
-                return;
-            }
-            // Delete order from active queue when complete
-            await deleteDoc(doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'orders', id));
+            if (!user) return;
+            const orderDoc = doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'orders', id);
+            // Save to history instead of deleting!
+            await updateDoc(orderDoc, { status: 'Completed', completedAt: Date.now() });
             stats.ordersToday += 1;
-            showToast('Order marked as Completed!', 'success');
+            showToast('Order marked as Completed and moved to History!', 'success');
+        };
+
+        window.toggleProductAvailability = async function(id) {
+            if (!user) return;
+            let newIds = [...unavailableIds];
+            if (newIds.includes(id)) {
+                newIds = newIds.filter(i => i !== id);
+            } else {
+                newIds.push(id);
+            }
+            await setDoc(doc(db, 'artifacts', firestoreAppId, 'public', 'data', 'settings', 'availability'), { ids: newIds });
+            showToast(newIds.includes(id) ? 'Marked as Unavailable' : 'Marked as Available', 'success');
         };
         
         window.simulateOnlineOrder = async function() {
-            if (!user) {
-                showToast("Not connected to database. Check Firebase Auth.", "warning");
-                return;
-            }
+            if (!user) { showToast("Not connected to database.", "warning"); return; }
             
             const newId = 'ORD-' + Math.floor(Math.random() * 9000 + 1000);
             const newOrder = {
-                source: 'Online', customer: 'New Web Customer', 
+                source: 'Online', customer: 'Simulation Guest', 
                 items: ['1x Vietnamese Coffee', '2x Lumpia Shanghai'], 
                 total: 59.00, status: 'Pending', time: 'Just now',
                 createdAt: Date.now()
@@ -295,10 +334,7 @@
         };
         
         window.restockItem = async function(id) {
-            if (!user) {
-                showToast("Not connected to database.", "warning");
-                return;
-            }
+            if (!user) return;
             const item = inventoryData.find(i => i.id === id);
             if(item) {
                 const newStock = item.stock + (item.threshold * 5);
@@ -307,7 +343,6 @@
             }
         };
 
-        // Internal helpers
         async function deductInventory(itemName, amount) {
             const item = inventoryData.find(i => i.item === itemName);
             if(item) {
@@ -321,7 +356,6 @@
 
         function switchTab(tab) {
             currentTab = tab;
-            
             document.querySelectorAll('#nav-links button').forEach(btn => {
                 btn.classList.remove('bg-coffee-800', 'text-white');
                 btn.classList.add('text-coffee-200');
@@ -337,6 +371,7 @@
 
             if(tab === 'dashboard') viewContainer.innerHTML = getDashboardHTML();
             else if(tab === 'orders') viewContainer.innerHTML = getOrdersHTML();
+            else if(tab === 'history') viewContainer.innerHTML = getHistoryHTML();
             else if(tab === 'inventory') viewContainer.innerHTML = getInventoryHTML();
             else if(tab === 'products') viewContainer.innerHTML = getProductsHTML();
 
@@ -370,7 +405,7 @@
                         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center gap-4">
                             <div class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-2xl"><i class="ph ph-currency-circle-dollar"></i></div>
                             <div>
-                                <p class="text-sm text-gray-500 font-medium">Active Order Revenue</p>
+                                <p class="text-sm text-gray-500 font-medium">All Time Revenue</p>
                                 <p class="text-2xl font-bold text-gray-800">₱${stats.revenue.toFixed(2)}</p>
                             </div>
                         </div>
@@ -410,7 +445,6 @@
                                     <i class="ph ph-list-plus"></i> Manage Menu
                                 </button>
                             </div>
-                            <p class="text-xs text-gray-400 mt-4 text-center">Simulating an order will deduct items from Firestore inventory and trigger alerts if stock drops.</p>
                         </div>
                     </div>
                 </div>
@@ -469,6 +503,47 @@
             `;
         }
 
+        function getHistoryHTML() {
+            if(completedOrders.length === 0) {
+                return `
+                    <div class="fade-in max-w-5xl mx-auto h-full flex flex-col items-center justify-center text-gray-400 mt-20">
+                        <i class="ph ph-clock-counter-clockwise text-6xl mb-4 opacity-50"></i>
+                        <h2 class="text-xl font-bold text-gray-600">No History Yet!</h2>
+                        <p class="mb-6">Completed orders will appear here automatically.</p>
+                    </div>
+                `;
+            }
+
+            const ordersHtml = completedOrders.map(order => `
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col md:flex-row justify-between gap-4 fade-in relative overflow-hidden opacity-80">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-green-500"></div>
+                    <div class="flex-1 pl-2">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="font-bold text-gray-800">${order.id}</span>
+                            <span class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded font-bold">${order.source}</span>
+                            <span class="text-xs text-gray-500"><i class="ph ph-check-circle text-green-500"></i> Completed ${new Date(order.completedAt || order.createdAt).toLocaleTimeString()}</span>
+                        </div>
+                        <p class="text-sm font-bold text-gray-700 mb-2"><i class="ph ph-user"></i> ${order.customer}</p>
+                        <ul class="text-sm text-gray-500 space-y-1 mb-3">
+                            ${order.items.map(i => `<li>• ${i}</li>`).join('')}
+                        </ul>
+                        <p class="font-bold text-coffee-700">Paid: ₱${order.total.toFixed(2)}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            return `
+                <div class="fade-in max-w-4xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h1 class="text-2xl font-bold text-gray-800">Order History</h1>
+                    </div>
+                    <div class="space-y-4">
+                        ${ordersHtml}
+                    </div>
+                </div>
+            `;
+        }
+
         function getInventoryHTML() {
             let tableRows = inventoryData.map(item => {
                 const isLow = item.stock <= item.threshold;
@@ -519,14 +594,23 @@
         }
 
         function getProductsHTML() {
-            let tableRows = productsList.map(item => `
+            let tableRows = productsList.map(item => {
+                const isAvail = !unavailableIds.includes(item.id);
+                return `
                 <tr class="border-b border-gray-100 hover:bg-gray-50">
                     <td class="p-4 text-sm font-bold text-gray-800">${item.name}</td>
                     <td class="p-4 text-sm text-gray-500"><span class="bg-gray-100 px-2 py-1 rounded text-xs font-bold">${item.category}</span></td>
                     <td class="p-4 text-sm font-bold text-coffee-700">₱${item.price.toFixed(2)}</td>
-                    <td class="p-4 text-sm text-green-600 font-bold flex items-center gap-1"><i class="ph ph-check-circle"></i> Available</td>
+                    <td class="p-4 text-sm font-bold flex items-center gap-1 ${isAvail ? 'text-green-600' : 'text-red-500'}">
+                        ${isAvail ? '<i class="ph ph-check-circle"></i> Available' : '<i class="ph ph-x-circle"></i> Unavailable'}
+                    </td>
+                    <td class="p-4 text-right">
+                        <button onclick="toggleProductAvailability(${item.id})" class="text-xs px-3 py-1.5 rounded border font-bold transition-colors ${isAvail ? 'border-red-200 text-red-600 hover:bg-red-50' : 'border-green-200 text-green-600 hover:bg-green-50'}">
+                            Mark ${isAvail ? 'Unavailable' : 'Available'}
+                        </button>
+                    </td>
                 </tr>
-            `).join('');
+            `}).join('');
 
             return `
                 <div class="fade-in max-w-5xl mx-auto">
@@ -540,7 +624,8 @@
                                     <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Product Name</th>
                                     <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Category</th>
                                     <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">Price</th>
-                                    <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">POS Status</th>
+                                    <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider">POS/Menu Status</th>
+                                    <th class="p-4 font-bold text-gray-600 text-sm uppercase tracking-wider text-right">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
